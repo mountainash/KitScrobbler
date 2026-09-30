@@ -1,0 +1,58 @@
+{
+  "name": "KitScrobbler",
+  "image": "ghcr.io/bare-devcontainer/bun:1-trixie",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {
+      "ppa": true,
+      "version": "os-provided"
+    },
+    "ghcr.io/meaningful-ooo/devcontainer-features/fish:2": {
+      "fisher": false
+    }
+  },
+  "remoteUser": "dev",
+  "securityOpt": [
+    "no-new-privileges"
+  ],
+  "init": true,
+  "remoteEnv": {
+    "VISUAL": "code --wait",
+    "EDITOR": "code --wait",
+    "GIT_EDITOR": "code --wait"
+  },
+  "mounts": [
+    // Persist Bun's global install cache across rebuilds to avoid re-downloading packages
+    {
+      "source": "bun-install-cache",
+      "target": "/home/dev/.bun/install/cache",
+      "type": "volume"
+    }
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "davidanson.vscode-markdownlint",
+        "streetsidesoftware.code-spell-checker",
+        "github.vscode-github-actions",
+        "biomejs.biome"
+      ],
+      "settings": {
+        "bun.runtime": "/usr/local/bin/bun",
+        "astro.typescript.server.enable": true
+      }
+    }
+  },
+  "containerEnv": {
+    "HOST": "0.0.0.0"
+  },
+  "forwardPorts": [
+    3000
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "dev server",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "bun install --frozen-lockfile"
+}
