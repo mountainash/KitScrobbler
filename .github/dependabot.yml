@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: "bun"
+    directory: "/"
+    labels:
+      - ":package: dependencies"
+    schedule:
+      interval: "daily"
+      time: "08:00"
+      timezone: "Australia/Brisbane"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    labels:
+      - ":package: dependencies"
+    schedule:
+      interval: "monthly"
+      time: "08:00"
+      timezone: "Australia/Brisbane"

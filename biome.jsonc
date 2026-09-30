@@ -1,0 +1,30 @@
+{
+    "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+    "javascript": {
+        "globals": [
+            "Bun",
+            "process"
+        ]
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "style": {
+                "noDescendingSpecificity": "warn"
+            }
+        }
+    },
+    "overrides": [
+        {
+            "includes": [
+                "src/**/*"
+            ]
+        }
+    ],
+    "vcs": {
+        "enabled": true,
+        "clientKind": "git",
+        "useIgnoreFile": true,
+        "defaultBranch": "main"
+    }
+}
