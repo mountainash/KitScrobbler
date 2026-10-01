@@ -103,11 +103,13 @@ export async function buildUi(options: BuildUiOptions = {}) {
 			entry: "[dir]/[name].js",
 		},
 		define: {
-			"process.env.NODE_ENV": '"production"',
+			// `includeDev` decides whether the popup's dev-state harness survives:
+			// the popup gates it on `process.env.NODE_ENV !== "production"` so that
+			// Bun's dev server (which substitutes NODE_ENV but not our own defines)
+			// behaves the same way.
+			"process.env.NODE_ENV": includeDev ? '"development"' : '"production"',
 			"process.env.VITE_PROD": '"true"',
 			"process.env.VITE_SAFARI": '"true"',
-			// Lets the popup compile the dev-state harness out of shipped builds.
-			"process.env.KIT_DEV": includeDev ? '"true"' : '"false"',
 		},
 		plugins: [upstreamAlias(), vIfdef(["VITE_SAFARI", "VITE_PROD"])],
 	});

@@ -220,8 +220,9 @@ interface ResolvedState {
  * Outside an extension, `?state=<name>` swaps in a fixture from the dev harness
  * so `dev.html` can show every popup state side by side.
  *
- * The whole path is compiled out of production builds (`includeDev: false` turns
- * `KIT_DEV` into a literal `false`), so the fixtures never ship to the App Store.
+ * The whole path is compiled out of production builds: our Bun.build defines
+ * `NODE_ENV` as `"production"` (and Bun's dev server supplies `"development"`),
+ * so the fixtures never ship to the App Store.
  */
 async function resolveDevState(): Promise<ResolvedState | undefined> {
 	const name = params.get("state");
@@ -242,7 +243,7 @@ async function resolveDevState(): Promise<ResolvedState | undefined> {
 }
 
 async function resolveState(): Promise<ResolvedState> {
-	if (process.env.KIT_DEV === "true" && !isExtensionContext()) {
+	if (process.env.NODE_ENV !== "production" && !isExtensionContext()) {
 		const devState = await resolveDevState();
 		if (devState) {
 			return devState;
