@@ -55,6 +55,13 @@ Building is two steps:
 `bun run build` needs upstream's native libraries: `brew install pango` on macOS, or the cairo/pango
 development packages on Linux.
 
+### 🖼 Popup state gallery
+
+`build/preview/src/ui/popup/dev.html` renders every popup state side by side in iframes, so you can
+compare them without a browser session for each. While `bun run dev` is running it is also at
+<http://localhost:3000/popup/dev.html>. Individual states are addressable directly, e.g.
+`popup/index.html?state=loved`. The gallery is left out of `bun run bundle`.
+
 `bun run dev` works anywhere Bun does, including the DevContainer — the UI falls back to mock data
 outside an extension context, so you can iterate on the Apple design system directly.
 

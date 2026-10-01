@@ -110,6 +110,11 @@ the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
 `build/preview` is a plain, complete web extension folder — point Safari's Developer tab at it with
 **Add Temporary Extension** to run it, exactly like loading an unpacked extension in Firefox/Chromium.
 
+`build/preview/src/ui/popup/dev.html` is a state gallery: `popup/index.html?state=<name>` forces a
+specific popup state (fixtures live in `app/popup/dev-states.ts`) and the gallery lays them all out
+side by side. `bun run dev` serves the same page at <http://localhost:3000/popup/dev.html>. The gallery
+and its fixtures are compiled out of `bun run bundle`.
+
 `bun run bundle` takes that same bundle, stages it inside the submodule where upstream's Xcode project
 expects it, runs `xcodebuild archive`, and exports for the App Store. Configure the host app's bundle
 identifiers, team and signing in the Xcode project (they cannot be set per-target from the CLI).

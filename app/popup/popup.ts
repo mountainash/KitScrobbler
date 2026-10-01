@@ -1,4 +1,4 @@
-import { extensionUrl } from "@kit/shared/browser";
+import { extensionUrl, isExtensionContext } from "@kit/shared/browser";
 import { el, mount } from "@kit/shared/dom";
 import { ICONS, svgIcon } from "@kit/shared/icons";
 import {
@@ -10,8 +10,24 @@ import {
 	upstreamCommunication,
 	upstreamThemes,
 } from "@kit/shared/upstream";
-import type ClonedSong from "@upstream/src/core/object/cloned-song";
 import * as ControllerMode from "@upstream/src/core/object/controller/controller-mode";
+
+/**
+ * The slice of upstream's `ClonedSong` that the popup renders.
+ *
+ * Upstream's class satisfies this structurally, so we pass it straight through;
+ * the dev harness (`dev-states.ts`) supplies plain test doubles instead — it
+ * cannot use `ClonedSong`, whose module imports `webextension-polyfill` and
+ * therefore throws outside an extension.
+ */
+export interface PopupSong {
+	getTrack(): string | null | undefined;
+	getArtist(): string | null | undefined;
+	getAlbum(): string | null | undefined;
+	getTrackArt(): string | null;
+	metadata: { userloved?: boolean; userPlayCount?: number };
+	connector: { label: string };
+}
 
 function header(): HTMLElement {
 	return el(
@@ -51,7 +67,7 @@ function iconButton(
 
 function nowPlaying(
 	tab: ManagerTab,
-	song: ClonedSong | null,
+	song: PopupSong | null,
 	comm: UpstreamCommunication | null,
 ): HTMLElement {
 	const trackArt = song?.getTrackArt() ?? null;
@@ -170,7 +186,7 @@ function disabledView(
 
 function body(
 	tab: ManagerTab,
-	song: ClonedSong | null,
+	song: PopupSong | null,
 	comm: UpstreamCommunication | null,
 ): HTMLElement {
 	switch (tab.mode) {
@@ -187,16 +203,48 @@ function body(
 	}
 }
 
-async function render(): Promise<void> {
-	const container = document.querySelector<HTMLElement>("#popup");
-	if (!container) {
-		return;
+const params = new URLSearchParams(location.search);
+
+type ResolvedState = { tab: ManagerTab; song: PopupSong | null };
+
+/**
+ * Outside an extension, `?state=<name>` swaps in a fixture from the dev harness
+ * so `dev.html` can show every popup state side by side.
+ *
+ * The whole path is compiled out of production builds (`includeDev: false` turns
+ * `KIT_DEV` into a literal `false`), so the fixtures never ship to the App Store.
+ */
+async function resolveDevState(): Promise<ResolvedState | undefined> {
+	const name = params.get("state");
+	if (!name) {
+		return undefined;
+	}
+	const { devState } = await import("./dev-states");
+	return devState(name);
+}
+
+async function resolveState(): Promise<ResolvedState> {
+	if (process.env.KIT_DEV === "true" && !isExtensionContext()) {
+		const devState = await resolveDevState();
+		if (devState) {
+			return devState;
+		}
 	}
 
 	const tab = await getCurrentTab();
 	const ClonedSong = await loadClonedSong();
 	const song =
 		tab.song && ClonedSong ? new ClonedSong(tab.song, tab.tabId) : null;
+	return { tab, song };
+}
+
+async function render(): Promise<void> {
+	const container = document.querySelector<HTMLElement>("#popup");
+	if (!container) {
+		return;
+	}
+
+	const { tab, song } = await resolveState();
 	const comm = await upstreamCommunication();
 
 	mount(container, header(), body(tab, song, comm));
@@ -206,7 +254,7 @@ const themes = await upstreamThemes();
 if (themes) {
 	await themes.initializeThemes();
 } else {
-	applyPreviewTheme("theme-system");
+	applyPreviewTheme(params.get("theme") ?? "theme-system");
 }
 
 await render();

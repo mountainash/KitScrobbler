@@ -20,7 +20,8 @@ async function main(): Promise<void> {
 
 	console.log("Kit Scrobbler — App Store bundle\n");
 
-	const preview = await buildPreview();
+	// No dev gallery in the shipped App Store bundle.
+	const preview = await buildPreview({ includeDev: false });
 	console.log(`• Preview extension: ${preview}`);
 
 	stagePreviewForXcode();

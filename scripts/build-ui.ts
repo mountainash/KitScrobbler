@@ -9,10 +9,17 @@ export interface BuildUiOptions {
 	outdir?: string;
 	minify?: boolean;
 	sourcemap?: boolean;
+	/** Include the popup state gallery (`dev.html`/`dev.js`). Defaults to true. */
+	includeDev?: boolean;
 }
 
 const PAGES = ["popup", "options"] as const;
 const SHARED_CSS = ["theme.css", "base.css"] as const;
+
+/** Dev-only gallery, nested in the popup so its iframes resolve `index.html`. */
+const DEV_DIR = join(appDir, "popup");
+const DEV_ENTRY = join(DEV_DIR, "dev.ts");
+const DEV_FILES = ["dev.html", "dev.css"] as const;
 
 /**
  * Copies the HTML and CSS **verbatim**.
@@ -21,7 +28,7 @@ const SHARED_CSS = ["theme.css", "base.css"] as const;
  * precisely the modern CSS we want to ship untouched. So only TypeScript goes
  * through Bun.build; markup and styles are copied as-is.
  */
-function copyStatic(outdir: string): void {
+function copyStatic(outdir: string, includeDev: boolean): void {
 	const sharedOut = join(outdir, "shared");
 	mkdirSync(sharedOut, { recursive: true });
 	for (const file of SHARED_CSS) {
@@ -34,6 +41,12 @@ function copyStatic(outdir: string): void {
 		cpSync(join(appDir, page, "index.html"), join(pageOut, "index.html"));
 		cpSync(join(appDir, page, `${page}.css`), join(pageOut, `${page}.css`));
 	}
+
+	if (includeDev) {
+		for (const file of DEV_FILES) {
+			cpSync(join(DEV_DIR, file), join(outdir, "popup", file));
+		}
+	}
 }
 
 /**
@@ -44,12 +57,17 @@ function copyStatic(outdir: string): void {
  * That is how we replace the UI without touching the submodule.
  */
 export async function buildUi(options: BuildUiOptions = {}) {
-	const { minify = true, sourcemap = false } = options;
+	const { minify = true, sourcemap = false, includeDev = true } = options;
 	const outdir = options.outdir ?? join(previewDir, "src", "ui");
 	mkdirSync(outdir, { recursive: true });
 
+	const entrypoints = PAGES.map((page) => join(appDir, page, `${page}.ts`));
+	if (includeDev) {
+		entrypoints.push(DEV_ENTRY);
+	}
+
 	const result = await Bun.build({
-		entrypoints: PAGES.map((page) => join(appDir, page, `${page}.ts`)),
+		entrypoints,
 		root: appDir,
 		outdir,
 		target: "browser",
@@ -66,6 +84,8 @@ export async function buildUi(options: BuildUiOptions = {}) {
 			"process.env.NODE_ENV": '"production"',
 			"process.env.VITE_PROD": '"true"',
 			"process.env.VITE_SAFARI": '"true"',
+			// Lets the popup compile the dev-state harness out of shipped builds.
+			"process.env.KIT_DEV": includeDev ? '"true"' : '"false"',
 		},
 		plugins: [upstreamAlias(), vIfdef(["VITE_SAFARI", "VITE_PROD"])],
 	});
@@ -77,7 +97,7 @@ export async function buildUi(options: BuildUiOptions = {}) {
 		throw new Error("Failed to build the UI.");
 	}
 
-	copyStatic(outdir);
+	copyStatic(outdir, includeDev);
 	return result;
 }
 
