@@ -148,23 +148,6 @@
 	color: var(--text-secondary);
 }
 
-.connector__patterns {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: var(--space-2);
-}
-
-.connector__pattern {
-	display: flex;
-	gap: var(--space-2);
-	width: 100%;
-}
-
-.connector__pattern .text-field {
-	flex: 1;
-}
-
 .connector__warning {
 	display: flex;
 	flex-wrap: wrap;

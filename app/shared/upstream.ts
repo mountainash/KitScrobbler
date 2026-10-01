@@ -15,10 +15,7 @@ import type {
 	ConnectorsOverrideOptionValues,
 	GlobalOptions,
 } from "@upstream/src/core/storage/options";
-import type {
-	CustomPatterns,
-	ManagerTab,
-} from "@upstream/src/core/storage/wrapper";
+import type { ManagerTab } from "@upstream/src/core/storage/wrapper";
 import { getBrowser, isExtensionContext } from "./browser";
 
 export type {
@@ -112,7 +109,6 @@ export type OverrideKey = keyof ConnectorsOverrideOptionValues;
 export interface UpstreamOptions {
 	read(): Promise<GlobalOptions | null>;
 	readOverrides(): Promise<ConnectorsOverrideOptions | null>;
-	readPatterns(): Promise<CustomPatterns | null>;
 	setConnectorEnabled(
 		connector: ConnectorMeta,
 		enabled: boolean,
@@ -123,7 +119,6 @@ export interface UpstreamOptions {
 		key: OverrideKey,
 		value: boolean | undefined,
 	): Promise<void>;
-	setPatterns(connectorId: string, patterns: string[]): Promise<void>;
 }
 
 /**
@@ -139,10 +134,9 @@ export async function upstreamOptions(): Promise<UpstreamOptions | null> {
 		return null;
 	}
 
-	const [options, browserStorage, patterns] = await Promise.all([
+	const [options, browserStorage] = await Promise.all([
 		import("@upstream/src/core/storage/options"),
 		import("@upstream/src/core/storage/browser-storage"),
-		import("@upstream/src/core/storage/custom-patterns"),
 	]);
 
 	return {
@@ -151,12 +145,10 @@ export async function upstreamOptions(): Promise<UpstreamOptions | null> {
 			browserStorage
 				.getStorage(browserStorage.CONNECTORS_OVERRIDE_OPTIONS)
 				.get(),
-		readPatterns: () => patterns.getAllPatterns(),
 		setConnectorEnabled: options.setConnectorEnabled,
 		setAllConnectorsEnabled: options.setAllConnectorsEnabled,
 		setOverride: (connectorId, key, value) =>
 			options.setConnectorOverrideOption(connectorId, key, value),
-		setPatterns: (connectorId, list) => patterns.setPatterns(connectorId, list),
 	};
 }
 

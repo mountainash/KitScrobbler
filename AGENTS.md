@@ -119,9 +119,10 @@ Only `http`/`https` schemes are ever emitted. Three things to know:
   so they are dropped and reported — today that leaves `amazon` and `amazon-alexa` with no pattern.
 - Self-hosted servers (Plex, Synology, Nextcloud, …) match *any* host by path; those are kept as
   path-limited `*` host patterns, which is as narrow as they can get.
-- Because the manifest no longer matches everything, a user's **custom URL patterns will not inject
-  the content script** — upstream relied on `<all_urls>` for that. Widening this needs dynamic
-  content-script registration, which is not implemented.
+- Because the manifest no longer matches everything, a user's **custom URL patterns could not inject
+  the content script** — upstream relied on `<all_urls>` for that. The options page therefore no longer
+  offers them at all. Widening this needs dynamic content-script registration, which is not
+  implemented.
 
 The build prints this report on every run, including any connector reachable over plain http only.
 The options page reads the same `connectorMatches()` result, so it flags what the manifest does:

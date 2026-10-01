@@ -9,7 +9,6 @@ import {
 import type { ConnectorMeta } from "@upstream/src/core/connectors";
 import connectors from "@upstream/src/core/connectors";
 import type { ConnectorsOverrideOptionValues } from "@upstream/src/core/storage/options";
-import type { CustomPatterns } from "@upstream/src/core/storage/wrapper";
 
 /**
  * Upstream sorts its connector list by label (`getSortedConnectors`). We sort the
@@ -139,14 +138,17 @@ function overrideSelect(
 }
 
 /**
- * The Connectors page: enable/disable, per-connector overrides and custom URL
- * patterns — all read and written through upstream's own helpers, so the
- * background and content scripts honour them unchanged.
+ * The Connectors page: enable/disable and per-connector overrides — all read and
+ * written through upstream's own helpers, so the background and content scripts
+ * honour them unchanged.
+ *
+ * Custom URL patterns are deliberately not offered: the manifest only matches the
+ * sites the connectors declare, so a user-added pattern could never inject the
+ * content script.
  */
 export function connectorsSection(): HTMLElement {
 	let disabled: Record<string, boolean> = {};
 	let overrides: Record<string, ConnectorsOverrideOptionValues> = {};
-	let patterns: CustomPatterns = {};
 	let query = "";
 	let options: UpstreamOptions | null = null;
 
@@ -266,69 +268,6 @@ export function connectorsSection(): HTMLElement {
 		setOverride(connector, KEYS.scrobbleEditedTracksOnly, pick("edited"));
 	}
 
-	function setPatterns(connector: ConnectorMeta, next: string[]): void {
-		patterns = { ...patterns, [connector.id]: next };
-		void persist((store) => store.setPatterns(connector.id, next));
-	}
-
-	function patternRows(connector: ConnectorMeta): HTMLElement {
-		const current = patterns[connector.id] ?? [];
-
-		return el(
-			"div",
-			{ class: "connector__patterns" },
-			...current.map((pattern, index) =>
-				el(
-					"div",
-					{ class: "connector__pattern" },
-					el("input", {
-						class: "text-field",
-						type: "text",
-						value: pattern,
-						placeholder: "*://example.com/*",
-						"aria-label": `Custom URL pattern ${index + 1}`,
-						// Committed on change rather than every keystroke: sync storage
-						// has a write-per-minute quota.
-						onChange: (event) => {
-							const next = [...(patterns[connector.id] ?? [])];
-							next[index] = (event.target as HTMLInputElement).value;
-							setPatterns(connector, next);
-						},
-					}),
-					el(
-						"button",
-						{
-							class: "button",
-							type: "button",
-							title: "Remove pattern",
-							"aria-label": "Remove pattern",
-							onClick: () => {
-								const next = [...(patterns[connector.id] ?? [])];
-								next.splice(index, 1);
-								setPatterns(connector, next);
-								render();
-							},
-						},
-						icon("trash", 14),
-					),
-				),
-			),
-			el(
-				"button",
-				{
-					class: "button",
-					type: "button",
-					onClick: () => {
-						setPatterns(connector, [...(patterns[connector.id] ?? []), ""]);
-						render();
-					},
-				},
-				icon("plus", 14),
-				"Add pattern",
-			),
-		);
-	}
-
 	function row(name: string, hint: string, control: HTMLElement): HTMLElement {
 		return el(
 			"div",
@@ -373,13 +312,6 @@ export function connectorsSection(): HTMLElement {
 					setBehaviour(connector, value),
 				),
 			),
-			el("h3", { class: "connector__group-title" }, "Custom URL patterns"),
-			el(
-				"p",
-				{ class: "connector__row-hint" },
-				"Extra URLs this connector should match, in order.",
-			),
-			patternRows(connector),
 		);
 	}
 
@@ -525,7 +457,6 @@ export function connectorsSection(): HTMLElement {
 		const configured = await options?.read();
 		disabled = { ...(configured?.disabledConnectors ?? {}) };
 		overrides = (await options?.readOverrides()) ?? {};
-		patterns = (await options?.readPatterns()) ?? {};
 		render();
 	})();
 
