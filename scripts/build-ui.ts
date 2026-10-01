@@ -54,13 +54,13 @@ export async function buildUi(options: BuildUiOptions = {}) {
 		outdir,
 		target: "browser",
 		format: "esm",
-		splitting: true,
+		// Everything ships locally inside the extension, so splitting shared code
+		// into separately-fetched chunks buys nothing. Each page becomes one file.
+		splitting: false,
 		minify,
 		sourcemap,
 		naming: {
 			entry: "[dir]/[name].js",
-			chunk: "chunks/[name]-[hash].js",
-			asset: "assets/[name]-[hash].[ext]",
 		},
 		define: {
 			"process.env.NODE_ENV": '"production"',
