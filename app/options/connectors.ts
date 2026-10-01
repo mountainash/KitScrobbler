@@ -173,7 +173,6 @@ export function connectorsSection(): HTMLElement {
 			{ class: "content__subtitle" },
 			"Turn sites on or off, and override scrobbling behaviour per site.",
 		),
-		UNREACHABLE.size > 0 ? unavailableSummary() : null,
 		el(
 			"div",
 			{ class: "connectors__toolbar" },
@@ -438,21 +437,6 @@ export function connectorsSection(): HTMLElement {
 				),
 				switchInput(connector.label, false, () => {}, true),
 			),
-		);
-	}
-
-	function unavailableSummary(): HTMLElement {
-		return el(
-			"p",
-			{ class: "connectors__unavailable" },
-			`${UNREACHABLE.size} connectors aren't available in Kit Scrobbler — Safari can't be told about
-			their sites. `,
-			el(
-				"a",
-				{ href: ISSUES_URL, target: "_blank", rel: "noreferrer" },
-				"Raise an issue",
-			),
-			" if you need one of them.",
 		);
 	}
 
