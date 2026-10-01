@@ -8,9 +8,13 @@ import {
 	type ManagerTab,
 	type UpstreamCommunication,
 	upstreamCommunication,
+	upstreamSavedEdits,
 	upstreamThemes,
 } from "@kit/shared/upstream";
+import type ClonedSong from "@upstream/src/core/object/cloned-song";
 import * as ControllerMode from "@upstream/src/core/object/controller/controller-mode";
+import type { SavedEdit } from "@upstream/src/core/storage/options";
+import { editView } from "./edit";
 
 /**
  * The slice of upstream's `ClonedSong` that the popup renders.
@@ -24,6 +28,7 @@ export interface PopupSong {
 	getTrack(): string | null | undefined;
 	getArtist(): string | null | undefined;
 	getAlbum(): string | null | undefined;
+	getAlbumArtist(): string | null | undefined;
 	getTrackArt(): string | null;
 	metadata: { userloved?: boolean; userPlayCount?: number };
 	connector: { label: string };
@@ -128,10 +133,7 @@ function nowPlaying(
 				});
 			}),
 			iconButton("Edit", ICONS.edit, false, () => {
-				void comm?.sendBackgroundMessage(tab.tabId, {
-					type: "setEditState",
-					payload: true,
-				});
+				beginEditing();
 			}),
 		),
 	);
@@ -205,7 +207,14 @@ function body(
 
 const params = new URLSearchParams(location.search);
 
-type ResolvedState = { tab: ManagerTab; song: PopupSong | null };
+interface ResolvedState {
+	tab: ManagerTab;
+	song: PopupSong | null;
+	/** The real upstream song, available only inside an extension. */
+	clonedSong: ClonedSong | null;
+	/** Whether the editor should be open on first render (dev fixtures). */
+	editing: boolean;
+}
 
 /**
  * Outside an extension, `?state=<name>` swaps in a fixture from the dev harness
@@ -220,7 +229,16 @@ async function resolveDevState(): Promise<ResolvedState | undefined> {
 		return undefined;
 	}
 	const { devState } = await import("./dev-states");
-	return devState(name);
+	const state = devState(name);
+	if (!state) {
+		return undefined;
+	}
+	return {
+		tab: state.tab,
+		song: state.song,
+		clonedSong: null,
+		editing: state.editing ?? false,
+	};
 }
 
 async function resolveState(): Promise<ResolvedState> {
@@ -233,9 +251,87 @@ async function resolveState(): Promise<ResolvedState> {
 
 	const tab = await getCurrentTab();
 	const ClonedSong = await loadClonedSong();
-	const song =
+	const clonedSong =
 		tab.song && ClonedSong ? new ClonedSong(tab.song, tab.tabId) : null;
-	return { tab, song };
+	return { tab, song: clonedSong, clonedSong, editing: false };
+}
+
+/* Editing ------------------------------------------------------------------ */
+
+let current: ResolvedState | null = null;
+let userEditing = false;
+let editKeepAlive: ReturnType<typeof setInterval> | undefined;
+
+async function sendEditState(payload: boolean): Promise<void> {
+	const comm = await upstreamCommunication();
+	if (!comm || !current) {
+		return;
+	}
+	await comm.sendBackgroundMessage(current.tab.tabId, {
+		type: "setEditState",
+		payload,
+	});
+}
+
+function beginEditing(): void {
+	userEditing = true;
+	void sendEditState(true);
+
+	// The content controller drops the editing flag after a few seconds, so
+	// upstream's popup keeps re-asserting it while the editor is open.
+	if (editKeepAlive) {
+		clearInterval(editKeepAlive);
+	}
+	editKeepAlive = setInterval(() => {
+		void sendEditState(true);
+	}, 1000);
+
+	void render();
+}
+
+function endEditing(): void {
+	userEditing = false;
+	if (editKeepAlive) {
+		clearInterval(editKeepAlive);
+		editKeepAlive = undefined;
+	}
+	void sendEditState(false);
+	void render();
+}
+
+/** Saves through upstream (`savedEdits.saveSongInfo`) then reprocesses the song. */
+async function applyEdit(data: SavedEdit): Promise<void> {
+	if (current?.clonedSong) {
+		const savedEdits = await upstreamSavedEdits();
+		await savedEdits?.saveSongInfo(current.clonedSong, data);
+
+		const comm = await upstreamCommunication();
+		await comm?.sendBackgroundMessage(current.tab.tabId, {
+			type: "reprocessSong",
+			payload: undefined,
+		});
+	}
+	endEditing();
+}
+
+/* Rendering ---------------------------------------------------------------- */
+
+function content(
+	state: ResolvedState,
+	comm: UpstreamCommunication | null,
+): HTMLElement {
+	const forced = state.tab.mode === ControllerMode.Unknown;
+	if ((userEditing || state.editing || forced) && state.song) {
+		return editView({
+			song: state.song,
+			showCancel: !forced,
+			onSave: (data) => {
+				void applyEdit(data);
+			},
+			onCancel: () => endEditing(),
+		});
+	}
+	return body(state.tab, state.song, comm);
 }
 
 async function render(): Promise<void> {
@@ -244,10 +340,10 @@ async function render(): Promise<void> {
 		return;
 	}
 
-	const { tab, song } = await resolveState();
+	current = await resolveState();
 	const comm = await upstreamCommunication();
 
-	mount(container, header(), body(tab, song, comm));
+	mount(container, header(), content(current, comm));
 }
 
 const themes = await upstreamThemes();
@@ -258,6 +354,12 @@ if (themes) {
 }
 
 await render();
+
+window.addEventListener("pagehide", () => {
+	if (userEditing) {
+		void sendEditState(false);
+	}
+});
 
 const comm = await upstreamCommunication();
 comm?.setupPopupListeners(

@@ -12,6 +12,7 @@ interface SongOptions {
 	track: string;
 	artist: string;
 	album?: string;
+	albumArtist?: string;
 	art?: string | null;
 	loved?: boolean;
 	playCount?: number;
@@ -27,6 +28,7 @@ function song(options: SongOptions): PopupSong {
 		getTrack: () => options.track,
 		getArtist: () => options.artist,
 		getAlbum: () => options.album ?? null,
+		getAlbumArtist: () => options.albumArtist ?? null,
 		getTrackArt: () => options.art ?? null,
 		metadata: {
 			userloved: options.loved ?? false,
@@ -46,6 +48,8 @@ export interface DevState {
 	label: string;
 	tab: ManagerTab;
 	song: PopupSong | null;
+	/** Open the metadata editor on first render. */
+	editing?: boolean;
 }
 
 const awake = song({
@@ -142,6 +146,23 @@ export const DEV_STATES: DevState[] = [
 		label: "Unsupported site",
 		tab: tab(ControllerMode.Unsupported),
 		song: null,
+	},
+	{
+		name: "edit",
+		label: "Edit track details",
+		tab: tab(ControllerMode.Playing),
+		song: awake,
+		editing: true,
+	},
+	{
+		name: "unknown",
+		label: "Unknown track (edit form)",
+		tab: tab(ControllerMode.Unknown),
+		song: song({
+			track: "Ambient Track 04",
+			artist: "Unknown Artist",
+			album: "Untitled",
+		}),
 	},
 ];
 

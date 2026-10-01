@@ -30,4 +30,8 @@ export const ICONS = {
 	note: '<path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/>',
 	// info circle
 	info: '<path d="M11 7h2v2h-2V7zm0 4h2v6h-2v-6zm1-9a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16z"/>',
+	// checkmark
+	check: '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>',
+	// swap horizontally
+	swap: '<path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/>',
 } as const;

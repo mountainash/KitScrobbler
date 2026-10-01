@@ -27,6 +27,8 @@ export type UpstreamClonedSong =
 	typeof import("@upstream/src/core/object/cloned-song").default;
 export type UpstreamScrobbleService =
 	typeof import("@upstream/src/core/object/scrobble-service").default;
+export type UpstreamSavedEdits =
+	typeof import("@upstream/src/core/storage/saved-edits").default;
 
 /** Preview-only stand-in used when there is no extension context. */
 export const PREVIEW_TAB: ManagerTab = {
@@ -81,6 +83,17 @@ export async function upstreamScrobbleService(): Promise<UpstreamScrobbleService
 		"@upstream/src/core/object/scrobble-service"
 	);
 	return scrobbleService;
+}
+
+/** Upstream's saved metadata edits (`saveSongInfo`). */
+export async function upstreamSavedEdits(): Promise<UpstreamSavedEdits | null> {
+	if (!isExtensionContext()) {
+		return null;
+	}
+	const { default: savedEdits } = await import(
+		"@upstream/src/core/storage/saved-edits"
+	);
+	return savedEdits;
 }
 
 export interface ExtensionInfo {

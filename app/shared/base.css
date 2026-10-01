@@ -139,6 +139,21 @@ select {
 	background: var(--bg-raised);
 }
 
+/* Text field -------------------------------------------------------------- */
+.text-field {
+	width: 100%;
+	min-height: var(--control-height);
+	padding: 3px var(--space-2);
+	border: var(--hairline) solid var(--separator);
+	border-radius: var(--radius-sm);
+	background: var(--bg-raised);
+	color: var(--text-primary);
+
+	&::placeholder {
+		color: var(--text-tertiary);
+	}
+}
+
 /* Segmented control ------------------------------------------------------- */
 .segmented {
 	display: inline-flex;
