@@ -10,12 +10,14 @@ import {
 	upstreamScrobbleService,
 	upstreamThemes,
 } from "@kit/shared/upstream";
+import { connectorsSection } from "./connectors";
 
-type SectionId = "appearance" | "accounts" | "about";
+type SectionId = "appearance" | "accounts" | "connectors" | "about";
 
 const SECTIONS: { id: SectionId; label: string; icon: IconName }[] = [
 	{ id: "appearance", label: "Appearance", icon: ICONS.appearance },
 	{ id: "accounts", label: "Accounts", icon: ICONS.accounts },
+	{ id: "connectors", label: "Connectors", icon: ICONS.connectors },
 	{ id: "about", label: "About", icon: ICONS.about },
 ];
 
@@ -372,6 +374,8 @@ function content(): HTMLElement {
 	switch (section) {
 		case "accounts":
 			return accountsSection();
+		case "connectors":
+			return connectorsSection();
 		case "about":
 			return aboutSection();
 		default:

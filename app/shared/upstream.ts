@@ -9,6 +9,8 @@
  * which would break `bun run dev`. Outside an extension these helpers return
  * `null` and the pages fall back to a tiny preview.
  */
+import type { ConnectorMeta } from "@upstream/src/core/connectors";
+import type { GlobalOptions } from "@upstream/src/core/storage/options";
 import type { ManagerTab } from "@upstream/src/core/storage/wrapper";
 import { getBrowser, isExtensionContext } from "./browser";
 
@@ -94,6 +96,40 @@ export async function upstreamSavedEdits(): Promise<UpstreamSavedEdits | null> {
 		"@upstream/src/core/storage/saved-edits"
 	);
 	return savedEdits;
+}
+
+/** The connector settings from upstream's `OPTIONS` storage. */
+export interface UpstreamOptions {
+	read(): Promise<GlobalOptions | null>;
+	setConnectorEnabled(
+		connector: ConnectorMeta,
+		enabled: boolean,
+	): Promise<void>;
+	setAllConnectorsEnabled(enabled: boolean): Promise<void>;
+}
+
+/**
+ * Upstream's global options, including the connector enable/disable mutators.
+ *
+ * Enabled connectors are the ones *absent* from `disabledConnectors`, which is
+ * what upstream's own options page reads and writes.
+ */
+export async function upstreamOptions(): Promise<UpstreamOptions | null> {
+	if (!isExtensionContext()) {
+		return null;
+	}
+
+	const [options, browserStorage] = await Promise.all([
+		import("@upstream/src/core/storage/options"),
+		import("@upstream/src/core/storage/browser-storage"),
+	]);
+	const storage = browserStorage.getStorage(browserStorage.OPTIONS);
+
+	return {
+		read: () => storage.get(),
+		setConnectorEnabled: options.setConnectorEnabled,
+		setAllConnectorsEnabled: options.setAllConnectorsEnabled,
+	};
 }
 
 export interface ExtensionInfo {
