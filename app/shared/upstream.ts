@@ -10,8 +10,15 @@
  * `null` and the pages fall back to a tiny preview.
  */
 import type { ConnectorMeta } from "@upstream/src/core/connectors";
-import type { GlobalOptions } from "@upstream/src/core/storage/options";
-import type { ManagerTab } from "@upstream/src/core/storage/wrapper";
+import type {
+	ConnectorsOverrideOptions,
+	ConnectorsOverrideOptionValues,
+	GlobalOptions,
+} from "@upstream/src/core/storage/options";
+import type {
+	CustomPatterns,
+	ManagerTab,
+} from "@upstream/src/core/storage/wrapper";
 import { getBrowser, isExtensionContext } from "./browser";
 
 export type {
@@ -98,37 +105,58 @@ export async function upstreamSavedEdits(): Promise<UpstreamSavedEdits | null> {
 	return savedEdits;
 }
 
-/** The connector settings from upstream's `OPTIONS` storage. */
+/** A per-connector override key from upstream's `ConnectorsOverrideOptionValues`. */
+export type OverrideKey = keyof ConnectorsOverrideOptionValues;
+
+/** The connector settings from upstream's option storages. */
 export interface UpstreamOptions {
 	read(): Promise<GlobalOptions | null>;
+	readOverrides(): Promise<ConnectorsOverrideOptions | null>;
+	readPatterns(): Promise<CustomPatterns | null>;
 	setConnectorEnabled(
 		connector: ConnectorMeta,
 		enabled: boolean,
 	): Promise<void>;
 	setAllConnectorsEnabled(enabled: boolean): Promise<void>;
+	setOverride(
+		connectorId: string,
+		key: OverrideKey,
+		value: boolean | undefined,
+	): Promise<void>;
+	setPatterns(connectorId: string, patterns: string[]): Promise<void>;
 }
 
 /**
- * Upstream's global options, including the connector enable/disable mutators.
+ * Upstream's options, through its own helpers.
  *
- * Enabled connectors are the ones *absent* from `disabledConnectors`, which is
- * what upstream's own options page reads and writes.
+ * Enabled connectors are the ones *absent* from `disabledConnectors`; override
+ * options live keyed by connector id, where an absent key means "inherit the
+ * global setting". Both are exactly what upstream's own options page reads and
+ * writes, so the background and content scripts honour them unchanged.
  */
 export async function upstreamOptions(): Promise<UpstreamOptions | null> {
 	if (!isExtensionContext()) {
 		return null;
 	}
 
-	const [options, browserStorage] = await Promise.all([
+	const [options, browserStorage, patterns] = await Promise.all([
 		import("@upstream/src/core/storage/options"),
 		import("@upstream/src/core/storage/browser-storage"),
+		import("@upstream/src/core/storage/custom-patterns"),
 	]);
-	const storage = browserStorage.getStorage(browserStorage.OPTIONS);
 
 	return {
-		read: () => storage.get(),
+		read: () => browserStorage.getStorage(browserStorage.OPTIONS).get(),
+		readOverrides: () =>
+			browserStorage
+				.getStorage(browserStorage.CONNECTORS_OVERRIDE_OPTIONS)
+				.get(),
+		readPatterns: () => patterns.getAllPatterns(),
 		setConnectorEnabled: options.setConnectorEnabled,
 		setAllConnectorsEnabled: options.setAllConnectorsEnabled,
+		setOverride: (connectorId, key, value) =>
+			options.setConnectorOverrideOption(connectorId, key, value),
+		setPatterns: (connectorId, list) => patterns.setPatterns(connectorId, list),
 	};
 }
 
