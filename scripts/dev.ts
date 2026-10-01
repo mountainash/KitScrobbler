@@ -1,6 +1,7 @@
 import optionsHtml from "../app/options/index.html";
 import devHtml from "../app/popup/dev.html";
 import popupHtml from "../app/popup/index.html";
+import { ensurePhosphorAssets } from "./phosphor";
 
 /**
  * Dev server built on Bun's own development server.
@@ -13,6 +14,10 @@ import popupHtml from "../app/popup/index.html";
  * dev caveat in AGENTS.md).
  */
 const port = Number(process.env.PORT ?? 3000);
+
+// Bun resolves each page's `<link href>` against the page, so the Phosphor
+// stylesheet and font have to live in `app/vendor/phosphor/`.
+ensurePhosphorAssets();
 
 const server = Bun.serve({
 	port,

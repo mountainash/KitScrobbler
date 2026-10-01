@@ -24,6 +24,7 @@
 		"prepare": "husky"
 	},
 	"dependencies": {
+		"@phosphor-icons/web": "^2.1.2",
 		"webextension-polyfill": "0.12.0"
 	},
 	"devDependencies": {

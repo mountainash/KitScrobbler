@@ -1,6 +1,6 @@
 import { getBrowser } from "@kit/shared/browser";
 import { el, mount } from "@kit/shared/dom";
-import { ICONS, svgIcon } from "@kit/shared/icons";
+import { ICONS, type IconName, icon, SERVICE_ICONS } from "@kit/shared/icons";
 import {
 	applyPreviewTheme,
 	getExtensionInfo,
@@ -13,10 +13,10 @@ import {
 
 type SectionId = "appearance" | "accounts" | "about";
 
-const SECTIONS: { id: SectionId; label: string; icon: string }[] = [
-	{ id: "appearance", label: "Appearance", icon: ICONS.settings },
-	{ id: "accounts", label: "Accounts", icon: ICONS.heart },
-	{ id: "about", label: "About", icon: ICONS.info },
+const SECTIONS: { id: SectionId; label: string; icon: IconName }[] = [
+	{ id: "appearance", label: "Appearance", icon: ICONS.appearance },
+	{ id: "accounts", label: "Accounts", icon: ICONS.accounts },
+	{ id: "about", label: "About", icon: ICONS.about },
 ];
 
 const LASTFM_LABEL = "Last.fm";
@@ -46,6 +46,7 @@ const LINKS = [
 		href: "https://github.com/web-scrobbler/web-scrobbler",
 	},
 	{ label: "Last.fm", href: "https://www.last.fm" },
+	{ label: "Phosphor Icons", href: "https://phosphoricons.com/" },
 ];
 
 type LastFmState =
@@ -154,7 +155,7 @@ function sidebar(): HTMLElement {
 							render();
 						},
 					},
-					svgIcon(entry.icon, 16),
+					icon(entry.icon, 16),
 					el("span", {}, entry.label),
 				),
 			),
@@ -187,15 +188,23 @@ function segmented(
 	return group;
 }
 
+interface RowOptions {
+	disabled?: boolean;
+	icon?: IconName;
+}
+
 function row(
 	label: string,
 	subtitle: string,
 	control: Node,
-	disabled = false,
+	options: RowOptions = {},
 ): HTMLElement {
 	return el(
 		"li",
-		{ class: disabled ? "list-row is-disabled" : "list-row" },
+		{ class: options.disabled ? "list-row is-disabled" : "list-row" },
+		options.icon
+			? el("span", { class: "list-row__icon" }, icon(options.icon, 18))
+			: null,
 		el(
 			"div",
 			{ class: "list-row__label" },
@@ -215,22 +224,24 @@ function connectButton(onClick?: () => void, disabled = false): HTMLElement {
 }
 
 function lastFmRow(): HTMLElement {
+	const withIcon = (subtitle: string, control: Node) =>
+		row(LASTFM_LABEL, subtitle, control, {
+			icon: SERVICE_ICONS[LASTFM_LABEL],
+		});
+
 	switch (lastFm.status) {
 		case "checking":
-			return row(
-				LASTFM_LABEL,
+			return withIcon(
 				"Checking…",
 				el("span", { class: "list-row__value" }, "…"),
 			);
 		case "unavailable":
-			return row(
-				LASTFM_LABEL,
+			return withIcon(
 				"Signed in through the Safari extension",
 				connectButton(undefined, true),
 			);
 		case "signed-in":
-			return row(
-				LASTFM_LABEL,
+			return withIcon(
 				`Signed in as ${lastFm.sessionName}`,
 				el(
 					"div",
@@ -259,8 +270,7 @@ function lastFmRow(): HTMLElement {
 				),
 			);
 		default:
-			return row(
-				LASTFM_LABEL,
+			return withIcon(
 				"Not connected",
 				connectButton(() => {
 					void connectLastFm();
@@ -315,7 +325,10 @@ function accountsSection(): HTMLElement {
 			{ class: "list" },
 			lastFmRow(),
 			...OTHER_SERVICES.map((service) =>
-				row(service, "Not available yet", connectButton(undefined, true), true),
+				row(service, "Not available yet", connectButton(undefined, true), {
+					disabled: true,
+					icon: SERVICE_ICONS[service],
+				}),
 			),
 		),
 		el(

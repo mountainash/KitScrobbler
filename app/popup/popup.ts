@@ -1,6 +1,6 @@
 import { extensionUrl, isExtensionContext } from "@kit/shared/browser";
 import { el, mount } from "@kit/shared/dom";
-import { ICONS, svgIcon } from "@kit/shared/icons";
+import { ICONS, icon } from "@kit/shared/icons";
 import {
 	applyPreviewTheme,
 	getCurrentTab,
@@ -48,14 +48,14 @@ function header(): HTMLElement {
 				title: "Settings",
 				"aria-label": "Settings",
 			},
-			svgIcon(ICONS.settings, 16),
+			icon(ICONS.settings, 16),
 		),
 	);
 }
 
 function iconButton(
 	label: string,
-	markup: string,
+	name: string,
 	active: boolean,
 	onClick: () => void,
 ): HTMLElement {
@@ -66,7 +66,7 @@ function iconButton(
 		"aria-label": label,
 		onClick,
 	});
-	node.append(svgIcon(markup, 16));
+	node.append(icon(name, 16));
 	return node;
 }
 
@@ -89,7 +89,7 @@ function nowPlaying(
 				: el(
 						"div",
 						{ class: "now-playing__placeholder" },
-						svgIcon(ICONS.note, 24),
+						icon(ICONS.note, 24),
 					),
 		),
 		el(
@@ -140,7 +140,7 @@ function nowPlaying(
 }
 
 function stateView(
-	markup: string,
+	name: string,
 	title: string,
 	text: string,
 	actions?: HTMLElement,
@@ -148,7 +148,7 @@ function stateView(
 	return el(
 		"section",
 		{ class: "state" },
-		el("div", { class: "state__icon" }, svgIcon(markup, 28)),
+		el("div", { class: "state__icon" }, icon(name, 28)),
 		el("h1", { class: "state__title" }, title),
 		el("p", { class: "state__text" }, text),
 		actions ?? null,

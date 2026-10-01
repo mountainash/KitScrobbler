@@ -1,6 +1,7 @@
 import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { appDir, previewDir } from "./paths";
+import { ensurePhosphorAssets, PHOSPHOR_VENDOR_DIR } from "./phosphor";
 import { upstreamAlias } from "./plugins/upstream-alias";
 import { vIfdef } from "./plugins/v-ifdef";
 
@@ -44,6 +45,10 @@ function copyStatic(outdir: string, includeDev: boolean): void {
 	for (const file of SHARED_CSS) {
 		cpSync(join(appDir, "shared", file), join(sharedOut, file));
 	}
+
+	const vendorOut = join(outdir, "vendor", "phosphor");
+	mkdirSync(vendorOut, { recursive: true });
+	cpSync(PHOSPHOR_VENDOR_DIR, vendorOut, { recursive: true });
 
 	for (const page of PAGES) {
 		const pageOut = join(outdir, page);
@@ -114,6 +119,7 @@ export async function buildUi(options: BuildUiOptions = {}) {
 		throw new Error("Failed to build the UI.");
 	}
 
+	ensurePhosphorAssets();
 	copyStatic(outdir, includeDev);
 	return result;
 }

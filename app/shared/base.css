@@ -60,6 +60,11 @@ textarea {
 		font-size: 12px;
 	}
 
+	.list-row__icon {
+		display: inline-flex;
+		color: var(--text-secondary);
+	}
+
 	.list-row__value {
 		color: var(--text-secondary);
 	}

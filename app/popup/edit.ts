@@ -1,5 +1,5 @@
 import { el } from "@kit/shared/dom";
-import { ICONS, svgIcon } from "@kit/shared/icons";
+import { ICONS, icon } from "@kit/shared/icons";
 import type { SavedEdit } from "@upstream/src/core/storage/options";
 import type { PopupSong } from "./popup";
 
@@ -69,9 +69,8 @@ export function editView(options: EditViewOptions): HTMLElement {
 			"aria-label": "Save",
 			onClick: () => options.onSave(read()),
 		},
-		svgIcon(ICONS.check, 16),
+		icon(ICONS.check, 16),
 	);
-
 	const swap = el(
 		"button",
 		{
@@ -89,7 +88,7 @@ export function editView(options: EditViewOptions): HTMLElement {
 				});
 			},
 		},
-		svgIcon(ICONS.swap, 16),
+		icon(ICONS.swap, 16),
 	);
 
 	for (const target of [track, artist]) {

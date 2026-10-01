@@ -7,6 +7,9 @@ dist/
 # dependencies
 node_modules/
 
+# generated: Phosphor webfont copied next to our pages (scripts/phosphor.ts)
+app/vendor/
+
 # logs
 npm-debug.log*
 yarn-debug.log*

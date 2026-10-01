@@ -90,6 +90,7 @@ container, dependencies are installed automatically.
 
 - [Biome](https://biomejs.dev)
 - [Bun](https://bun.sh)
+- [Phosphor Icons](https://phosphoricons.com/)
 
 ## ☑️ TODO
 

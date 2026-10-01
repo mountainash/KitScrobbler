@@ -33,9 +33,10 @@ possible scrobbling experience in **Safari on macOS**.
 
 ```
 app/                  Kit Scrobbler's own source (our code — edit freely)
-  popup/              Safari toolbar popup (now-playing etc.)
+  popup/              Safari toolbar popup (now-playing, edit view, state gallery)
   options/            Settings page
   shared/             Design tokens, base components, upstream bridges
+  vendor/             Generated Phosphor webfont (gitignored; scripts/phosphor.ts)
 scripts/              Bun build pipeline
   plugins/            Bun.build plugins (upstream alias, #v-ifdef)
 src/web-scrobbler/    READ-ONLY git submodule (upstream Web Scrobbler)
@@ -148,6 +149,9 @@ identifiers, team and signing in the Xcode project (they cannot be set per-targe
 - Favour **native controls** — real `<input type="checkbox" switch>`, `<select>`, `<input type="range">`
   with `accent-color`. Do not recreate iOS/macOS controls with custom markup if a native one exists.
 - The accent colour is the system accent (`AccentColor`) wherever possible.
+- Icons come from [Phosphor](https://phosphoricons.com/) through `app/shared/icons.ts`
+  (`icon(name)` plus the `ICONS`/`SERVICE_ICONS` maps). Do not hand-roll SVG paths: upstream's icon
+  pipeline needs native canvas/image tooling, whereas Phosphor is a webfont with no build step.
 
 ## Commits
 

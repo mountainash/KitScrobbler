@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { cleanGitEnv } from "./git";
+import { ensurePhosphorAssets } from "./phosphor";
 import { ensureUpstreamDependencies } from "./upstream";
 
 /**
@@ -62,3 +63,5 @@ ensureSubmodule();
 if (existsSync(join(submodule, "package.json"))) {
 	ensureUpstreamDependencies();
 }
+
+ensurePhosphorAssets();
