@@ -5,6 +5,8 @@
 		"module": "Preserve",
 		"moduleResolution": "bundler",
 		"moduleDetection": "force",
+		"jsx": "preserve",
+		"jsxImportSource": "solid-js",
 		"resolveJsonModule": true,
 		"allowImportingTsExtensions": true,
 		"noEmit": true,
@@ -17,6 +19,6 @@
 			"@/*": ["./src/web-scrobbler/src/*"]
 		}
 	},
-	"include": ["app/**/*", "scripts/**/*"],
+	"include": ["app/**/*", "scripts/**/*", "src/web-scrobbler/src/**/*.d.ts"],
 	"exclude": ["node_modules", "build", "dist", "src/web-scrobbler/build"]
 }

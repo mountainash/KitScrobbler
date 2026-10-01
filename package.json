@@ -26,6 +26,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.14",
+		"@types/blueimp-md5": "2.18.2",
 		"@types/bun": "1.4.2",
 		"@types/webextension-polyfill": "0.12.5",
 		"husky": "9.1.7",

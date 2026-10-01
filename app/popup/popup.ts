@@ -1,11 +1,17 @@
 import { extensionUrl } from "@kit/shared/browser";
 import { el, mount } from "@kit/shared/dom";
 import { ICONS, svgIcon } from "@kit/shared/icons";
-import { onMessage, sendToTab } from "@kit/shared/messaging";
-import { ControllerMode } from "@kit/shared/modes";
-import { type SongView, toSongView } from "@kit/shared/song";
-import { applyTheme, getActiveTab, getTheme } from "@kit/shared/storage";
-import type { TabState } from "@kit/shared/types";
+import {
+	applyPreviewTheme,
+	getCurrentTab,
+	loadClonedSong,
+	type ManagerTab,
+	type UpstreamCommunication,
+	upstreamCommunication,
+	upstreamThemes,
+} from "@kit/shared/upstream";
+import type ClonedSong from "@upstream/src/core/object/cloned-song";
+import * as ControllerMode from "@upstream/src/core/object/controller/controller-mode";
 
 function header(): HTMLElement {
 	return el(
@@ -43,8 +49,13 @@ function iconButton(
 	return node;
 }
 
-function nowPlaying(tab: TabState, song: SongView | null): HTMLElement {
-	const placeholderIcon = svgIcon(ICONS.note, 24);
+function nowPlaying(
+	tab: ManagerTab,
+	song: ClonedSong | null,
+	comm: UpstreamCommunication | null,
+): HTMLElement {
+	const trackArt = song?.getTrackArt() ?? null;
+	const album = song?.getAlbum() ?? null;
 
 	return el(
 		"section",
@@ -52,9 +63,13 @@ function nowPlaying(tab: TabState, song: SongView | null): HTMLElement {
 		el(
 			"div",
 			{ class: "now-playing__art" },
-			song?.trackArt
-				? el("img", { class: "now-playing__img", src: song.trackArt, alt: "" })
-				: el("div", { class: "now-playing__placeholder" }, placeholderIcon),
+			trackArt
+				? el("img", { class: "now-playing__img", src: trackArt, alt: "" })
+				: el(
+						"div",
+						{ class: "now-playing__placeholder" },
+						svgIcon(ICONS.note, 24),
+					),
 		),
 		el(
 			"div",
@@ -62,38 +77,45 @@ function nowPlaying(tab: TabState, song: SongView | null): HTMLElement {
 			el(
 				"div",
 				{ class: "now-playing__track" },
-				song?.track ?? "Nothing playing",
+				song?.getTrack() ?? "Nothing playing",
 			),
-			el("div", { class: "now-playing__artist" }, song?.artist ?? "—"),
-			song?.album
-				? el("div", { class: "now-playing__album" }, song.album)
-				: null,
+			el("div", { class: "now-playing__artist" }, song?.getArtist() ?? "—"),
+			album ? el("div", { class: "now-playing__album" }, album) : null,
 			el(
 				"div",
 				{ class: "now-playing__meta" },
 				el(
 					"span",
 					{ class: "now-playing__connector" },
-					song?.connectorLabel ?? "Unknown",
+					song?.connector.label ?? "Unknown",
 				),
 				el("span", { class: "toolbar__spacer" }),
-				el("span", {}, `${song?.playCount ?? 0} scrobbles`),
+				el("span", {}, `${song?.metadata.userPlayCount ?? 0} scrobbles`),
 			),
 		),
 		el(
 			"div",
 			{ class: "now-playing__controls" },
-			iconButton("Love", ICONS.heart, Boolean(song?.loved), () => {
-				void sendToTab(tab.tabId, "toggleLove", {
-					isLoved: !song?.loved,
-					shouldShowNotification: false,
+			iconButton("Love", ICONS.heart, Boolean(song?.metadata.userloved), () => {
+				void comm?.sendBackgroundMessage(tab.tabId, {
+					type: "toggleLove",
+					payload: {
+						isLoved: !song?.metadata.userloved,
+						shouldShowNotification: false,
+					},
 				});
 			}),
 			iconButton("Skip", ICONS.skip, false, () => {
-				void sendToTab(tab.tabId, "skipCurrentSong", undefined);
+				void comm?.sendBackgroundMessage(tab.tabId, {
+					type: "skipCurrentSong",
+					payload: undefined,
+				});
 			}),
 			iconButton("Edit", ICONS.edit, false, () => {
-				void sendToTab(tab.tabId, "setEditState", true);
+				void comm?.sendBackgroundMessage(tab.tabId, {
+					type: "setEditState",
+					payload: true,
+				});
 			}),
 		),
 	);
@@ -115,7 +137,10 @@ function stateView(
 	);
 }
 
-function disabledView(tab: TabState): HTMLElement {
+function disabledView(
+	tab: ManagerTab,
+	comm: UpstreamCommunication | null,
+): HTMLElement {
 	return stateView(
 		ICONS.info,
 		"Scrobbling disabled",
@@ -129,7 +154,12 @@ function disabledView(tab: TabState): HTMLElement {
 					class: "button button--primary",
 					type: "button",
 					onClick: () => {
-						void sendToTab(tab.tabId, "setConnectorState", true).then(render);
+						void comm
+							?.sendBackgroundMessage(tab.tabId, {
+								type: "setConnectorState",
+								payload: true,
+							})
+							.then(() => render());
 					},
 				},
 				"Enable for this site",
@@ -138,7 +168,11 @@ function disabledView(tab: TabState): HTMLElement {
 	);
 }
 
-function body(tab: TabState): HTMLElement {
+function body(
+	tab: ManagerTab,
+	song: ClonedSong | null,
+	comm: UpstreamCommunication | null,
+): HTMLElement {
 	switch (tab.mode) {
 		case ControllerMode.Unsupported:
 			return stateView(
@@ -147,9 +181,9 @@ function body(tab: TabState): HTMLElement {
 				"Kit Scrobbler does not recognise this website.",
 			);
 		case ControllerMode.Disabled:
-			return disabledView(tab);
+			return disabledView(tab, comm);
 		default:
-			return nowPlaying(tab, toSongView(tab.song));
+			return nowPlaying(tab, song, comm);
 	}
 }
 
@@ -158,15 +192,31 @@ async function render(): Promise<void> {
 	if (!container) {
 		return;
 	}
-	const tab = await getActiveTab();
-	mount(container, header(), body(tab));
+
+	const tab = await getCurrentTab();
+	const ClonedSong = await loadClonedSong();
+	const song =
+		tab.song && ClonedSong ? new ClonedSong(tab.song, tab.tabId) : null;
+	const comm = await upstreamCommunication();
+
+	mount(container, header(), body(tab, song, comm));
 }
 
-applyTheme(await getTheme());
+const themes = await upstreamThemes();
+if (themes) {
+	await themes.initializeThemes();
+} else {
+	applyPreviewTheme("theme-system");
+}
+
 await render();
 
-await onMessage((message) => {
-	if (message.type === "currentTab") {
-		void render();
-	}
-});
+const comm = await upstreamCommunication();
+comm?.setupPopupListeners(
+	comm.popupListener({
+		type: "currentTab",
+		fn: () => {
+			void render();
+		},
+	}),
+);

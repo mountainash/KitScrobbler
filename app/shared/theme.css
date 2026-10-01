@@ -60,11 +60,13 @@
 	--shadow-control: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
-:root[data-theme="light"] {
+body.theme-light,
+body.theme-high-contrast-light {
 	color-scheme: light;
 }
 
-:root[data-theme="dark"] {
+body.theme-dark,
+body.theme-high-contrast-dark {
 	color-scheme: dark;
 }
 

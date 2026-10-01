@@ -76,14 +76,16 @@ Potential confusion to avoid: upstream's *own* source lives at `src/web-scrobble
   Bun plugin (`scripts/plugins/upstream-alias.ts`) only for files inside the submodule. Never write
   `@/...` in `app/`.
 
-Import runtime behaviour from upstream deliberately and sparingly.
+**Import from upstream; never re-declare it.** Types come straight from the submodule
+(`import type { ManagerTab } from "@upstream/src/core/storage/wrapper"`). Runtime code is reached
+through `app/shared/upstream.ts`, which lazily imports upstream modules. The only reason anything is
+imported dynamically is that `webextension-polyfill` throws at module-evaluation time outside an
+extension — the lazy loader keeps `bun run dev` alive and returns `null` (preview) there. Do not copy
+upstream logic, constants, or shapes into `app/`; unused code is tree-shaken at build.
 
-**Boundary types are structural.** `app/shared/types.ts` declares the shapes we consume (`TabState`,
-`SongData`) rather than importing upstream's `ManagerTab`/`CloneableSong`. Upstream's type graph
-assumes its own `node_modules` and ambient declarations (`src/types/declaration.d.ts`), and pulling it
-into our program forces us to install and appease all of it. `@upstream` is used for **runtime**
-imports (see `app/shared/modes.ts`) and will carry types once the phase-2 migration beds in. When you
-need a compile-time contract for upstream data, add it to `app/shared/types.ts`.
+Type-checking upstream source needs the submodule's dependencies. Run `npm ci` inside
+`src/web-scrobbler` (the build does this automatically when `node_modules` is missing), and note that
+`tsconfig.json` includes the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
 
 ## Build pipeline
 

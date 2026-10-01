@@ -45,11 +45,6 @@ function chrome(): ChromeLike | undefined {
 	return (globalThis as { chrome?: ChromeLike }).chrome;
 }
 
-/** True when the dev preview has flagged this page as non-extension. */
-export function isPreview(): boolean {
-	return Boolean((globalThis as { __KIT_PREVIEW__?: boolean }).__KIT_PREVIEW__);
-}
-
 export function isExtensionContext(): boolean {
 	return Boolean(chrome()?.runtime?.id);
 }
@@ -58,7 +53,7 @@ export function isExtensionContext(): boolean {
  * @returns the `browser` API inside an extension, or `null` in the dev preview.
  */
 export async function getBrowser(): Promise<BrowserApi | null> {
-	if (isPreview() || !isExtensionContext()) {
+	if (!isExtensionContext()) {
 		return null;
 	}
 	const mod = (await import("webextension-polyfill")) as unknown as {

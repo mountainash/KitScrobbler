@@ -1,12 +1,12 @@
 import { el, mount } from "@kit/shared/dom";
 import { ICONS, svgIcon } from "@kit/shared/icons";
 import {
-	applyTheme,
+	applyPreviewTheme,
 	getExtensionInfo,
-	getTheme,
-	setTheme,
-	type ThemeChoice,
-} from "@kit/shared/storage";
+	type ModifiedTheme,
+	type UpstreamThemes,
+	upstreamThemes,
+} from "@kit/shared/upstream";
 
 type SectionId = "appearance" | "accounts" | "about";
 
@@ -25,6 +25,12 @@ const SERVICES = [
 	"Pleroma",
 ];
 
+const THEMES: { value: ModifiedTheme; label: string }[] = [
+	{ value: "theme-system", label: "System" },
+	{ value: "theme-light", label: "Light" },
+	{ value: "theme-dark", label: "Dark" },
+];
+
 const LINKS = [
 	{
 		label: "Kit Scrobbler on GitHub",
@@ -38,8 +44,16 @@ const LINKS = [
 ];
 
 let section: SectionId = "appearance";
-let theme = await getTheme();
+
+const themes: UpstreamThemes | null = await upstreamThemes();
+let theme: ModifiedTheme = themes ? await themes.getTheme() : "theme-system";
 const info = await getExtensionInfo();
+
+if (themes) {
+	await themes.initializeThemes();
+} else {
+	applyPreviewTheme(theme);
+}
 
 function sidebar(): HTMLElement {
 	return el(
@@ -49,8 +63,8 @@ function sidebar(): HTMLElement {
 		el(
 			"nav",
 			{ class: "sidebar__nav" },
-			...SECTIONS.map((entry) => {
-				const button = el(
+			...SECTIONS.map((entry) =>
+				el(
 					"button",
 					{
 						class: "sidebar__item",
@@ -63,17 +77,16 @@ function sidebar(): HTMLElement {
 					},
 					svgIcon(entry.icon, 16),
 					el("span", {}, entry.label),
-				);
-				return button;
-			}),
+				),
+			),
 		),
 	);
 }
 
 function segmented(
-	options: { value: ThemeChoice; label: string }[],
-	current: ThemeChoice,
-	onSelect: (value: ThemeChoice) => void,
+	options: { value: ModifiedTheme; label: string }[],
+	current: ModifiedTheme,
+	onSelect: (value: ModifiedTheme) => void,
 ): HTMLElement {
 	const group = el("div", { class: "segmented", role: "tablist" });
 
@@ -125,20 +138,16 @@ function appearanceSection(): HTMLElement {
 			{ class: "list" },
 			row(
 				"Theme",
-				"System follows macOS and switches automatically.",
-				segmented(
-					[
-						{ value: "theme-system", label: "System" },
-						{ value: "theme-light", label: "Light" },
-						{ value: "theme-dark", label: "Dark" },
-					],
-					theme,
-					(value) => {
-						theme = value;
-						void setTheme(value);
-						render();
-					},
-				),
+				"Theme is shared with Web Scrobbler.",
+				segmented(THEMES, theme, (value) => {
+					theme = value;
+					if (themes) {
+						void themes.updateTheme(value);
+					} else {
+						applyPreviewTheme(value);
+					}
+					render();
+				}),
 			),
 		),
 	);
@@ -222,7 +231,6 @@ function render(): void {
 	if (!root) {
 		return;
 	}
-	applyTheme(theme);
 	mount(root, sidebar(), el("main", { class: "content" }, content()));
 }
 
