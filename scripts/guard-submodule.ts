@@ -1,33 +1,11 @@
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { cleanGitEnv } from "./git";
 
 const REL = "src/web-scrobbler";
 const root = join(import.meta.dir, "..");
 const submodule = join(root, REL);
-
-/**
- * Git exports `GIT_DIR`/`GIT_INDEX_FILE`/… for hooks. With a relative `GIT_DIR`
- * and our cwd inside the submodule, those would resolve against the submodule
- * (whose `.git` is a gitlink *file*), so strip them before running git.
- */
-const GIT_ENV_VARS = [
-	"GIT_DIR",
-	"GIT_WORK_TREE",
-	"GIT_INDEX_FILE",
-	"GIT_OBJECT_DIRECTORY",
-	"GIT_COMMON_DIR",
-	"GIT_PREFIX",
-	"GIT_ALTERNATE_OBJECT_DIRECTORIES",
-];
-
-function cleanGitEnv(): Record<string, string | undefined> {
-	const env: Record<string, string | undefined> = { ...process.env };
-	for (const key of GIT_ENV_VARS) {
-		delete env[key];
-	}
-	return env;
-}
 
 if (!existsSync(join(submodule, ".git"))) {
 	console.log(`⏭  No submodule at ${REL} — nothing to guard.`);

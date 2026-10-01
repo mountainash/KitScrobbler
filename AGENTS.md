@@ -58,7 +58,7 @@ Potential confusion to avoid: upstream's *own* source lives at `src/web-scrobble
 
 | Command | Action |
 | :--- | :--- |
-| `bun install` | Install dependencies |
+| `bun install` | Install dependencies; `postinstall` initialises the submodule |
 | `bun run dev` | Serve the UI at <http://localhost:3000> with live reload (no macOS needed) |
 | `bun run build:ui` | Bun.build the popup + options into the raw Safari bundle |
 | `bun run build` | Full macOS pipeline: raw bundle → our UI → manifest patch → Xcode app |

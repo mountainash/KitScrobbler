@@ -18,6 +18,7 @@
 		"check": "biome check",
 		"fix": "biome lint --write",
 		"guard": "bun run scripts/guard-submodule.ts",
+		"postinstall": "bun run scripts/setup-submodule.ts",
 		"prepare": "husky"
 	},
 	"dependencies": {
