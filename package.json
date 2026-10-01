@@ -12,7 +12,7 @@
 		"url": "https://mountainash.id.au/"
 	},
 	"scripts": {
-		"dev": "bun run scripts/dev.ts",
+		"dev": "bun --hot scripts/dev.ts",
 		"build": "bun run scripts/build.ts",
 		"build:ui": "bun run scripts/build-ui.ts",
 		"bundle": "bun run scripts/bundle.ts",

@@ -62,7 +62,7 @@ Potential confusion to avoid: upstream's *own* source lives at `src/web-scrobble
 | Command | Action |
 | :--- | :--- |
 | `bun install` | Install dependencies; `postinstall` fetches the submodule and its deps |
-| `bun run dev` | Serve the UI at <http://localhost:3000> with live reload (no macOS needed) |
+| `bun run dev` | Bun dev server with HMR, serving the gallery at <http://localhost:3000> (no macOS needed) |
 | `bun run build:ui` | Bun.build the popup + options into `build/preview` |
 | `bun run build` | Build the loadable extension into `build/preview` (any OS) |
 | `bun run bundle` | Archive + export the App Store build to `dist/` (macOS + Xcode) |
@@ -101,14 +101,19 @@ the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
 2. `scripts/build-ui.ts` runs `Bun.build` over `app/**` and writes our popup + options to the exact
    paths the generated manifest points at (`src/ui/popup/index.html`, `src/ui/options/index.html`).
    This is how we replace the UI without touching upstream.
-   Only **TypeScript** goes through Bun.build. HTML and CSS are copied **verbatim**, because Bun's CSS
-   pipeline rewrites `light-dark()` and flattens CSS Nesting — the exact modern CSS we insist on
-   shipping as-is. So `index.html` references the built `./popup.js` directly and links its
-   stylesheets explicitly (no `@import`).
+   Only **TypeScript** goes through Bun.build. CSS is copied **verbatim**, because Bun's CSS pipeline
+   rewrites `light-dark()` and flattens CSS Nesting — the exact modern CSS we insist on shipping as-is.
+   The HTML is copied with just its entry script rewritten (`./popup.ts` → `./popup.js`); the source
+   points at the TypeScript entry so Bun's dev server can bundle it.
 3. The generated `manifest.json` is patched in place (name/version).
 
 `build/preview` is a plain, complete web extension folder — point Safari's Developer tab at it with
 **Add Temporary Extension** to run it, exactly like loading an unpacked extension in Firefox/Chromium.
+
+`bun run dev` (`bun --hot scripts/dev.ts`) is different in kind: it serves the pages straight from
+`app/` through Bun's development server, so edits hot-reload in the browser and there is no
+hand-rolled reload client. Bun bundles those pages itself, so it also touches the CSS (it adds
+`--buncss-*` fallback variables; `light-dark()` itself is preserved, so the theme toggle still works).
 
 `build/preview/src/ui/popup/dev.html` is a state gallery: `popup/index.html?state=<name>` forces a
 specific popup state (fixtures live in `app/popup/dev-states.ts`) and the gallery lays them all out

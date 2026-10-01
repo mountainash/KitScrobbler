@@ -27,9 +27,6 @@ export const upstreamRawDir = join(upstreamDir, "build", "safariraw");
 /** The generated manifest inside the preview extension. */
 export const manifestPath = join(previewDir, "manifest.json");
 
-/** Dev-server output for `bun run dev` (UI only). */
-export const devDir = join(buildDir, "dev");
-
 /** Packaged distributables (gitignored). */
 export const distDir = join(root, "dist");
 

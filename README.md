@@ -31,7 +31,7 @@ Run these commands from the repository root.
 | Command | Action |
 | :--- | :--- |
 | `bun install` | Install dependencies, fetch the Web Scrobbler submodule and its dependencies |
-| `bun run dev` | Serve the UI preview at <http://localhost:3000> with live reload |
+| `bun run dev` | Bun dev server with HMR: gallery at <http://localhost:3000/popup/dev.html> |
 | `bun run build:ui` | Bundle the popup + options into `build/preview` |
 | `bun run build` | Build the loadable extension into `build/preview` (any OS) |
 | `bun run bundle` | Archive + export the App Store build to `dist/` (macOS + Xcode) |
@@ -58,12 +58,12 @@ development packages on Linux.
 ### 🖼 Popup state gallery
 
 `build/preview/src/ui/popup/dev.html` renders every popup state side by side in iframes, so you can
-compare them without a browser session for each. While `bun run dev` is running it is also at
-<http://localhost:3000/popup/dev.html>. Individual states are addressable directly, e.g.
+compare them without a browser session for each. Individual states are addressable directly, e.g.
 `popup/index.html?state=loved`. The gallery is left out of `bun run bundle`.
 
-`bun run dev` works anywhere Bun does, including the DevContainer — the UI falls back to mock data
-outside an extension context, so you can iterate on the Apple design system directly.
+`bun run dev` works anywhere Bun does, including the DevContainer — it serves the gallery from source
+through Bun's development server, so edits hot-reload in the browser (at
+<http://localhost:3000/popup/dev.html>), and the UI falls back to mock data outside an extension.
 
 You can also run this project inside a DevContainer in VS Code. After reopening the folder in the
 container, dependencies are installed automatically.

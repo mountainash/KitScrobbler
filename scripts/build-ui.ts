@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { appDir, previewDir } from "./paths";
 import { upstreamAlias } from "./plugins/upstream-alias";
@@ -19,14 +19,24 @@ const SHARED_CSS = ["theme.css", "base.css"] as const;
 /** Dev-only gallery, nested in the popup so its iframes resolve `index.html`. */
 const DEV_DIR = join(appDir, "popup");
 const DEV_ENTRY = join(DEV_DIR, "dev.ts");
-const DEV_FILES = ["dev.html", "dev.css"] as const;
 
 /**
- * Copies the HTML and CSS **verbatim**.
+ * Writes a page's HTML with its entry script pointed at the built file.
+ *
+ * The source HTML references the TypeScript entry (`./popup.ts`) so Bun's dev
+ * server can bundle it for HMR; the shipped page must reference the emitted JS.
+ */
+function copyHtml(from: string, to: string, entry: string): void {
+	const html = readFileSync(from, "utf8").replace(`${entry}.ts`, `${entry}.js`);
+	writeFileSync(to, html);
+}
+
+/**
+ * Copies the CSS **verbatim** and the HTML with its entry rewritten.
  *
  * Bun's bundler rewrites `light-dark()` and flattens CSS Nesting, which is
  * precisely the modern CSS we want to ship untouched. So only TypeScript goes
- * through Bun.build; markup and styles are copied as-is.
+ * through Bun.build; styles are copied as-is and markup keeps everything else.
  */
 function copyStatic(outdir: string, includeDev: boolean): void {
 	const sharedOut = join(outdir, "shared");
@@ -38,14 +48,21 @@ function copyStatic(outdir: string, includeDev: boolean): void {
 	for (const page of PAGES) {
 		const pageOut = join(outdir, page);
 		mkdirSync(pageOut, { recursive: true });
-		cpSync(join(appDir, page, "index.html"), join(pageOut, "index.html"));
+		copyHtml(
+			join(appDir, page, "index.html"),
+			join(pageOut, "index.html"),
+			page,
+		);
 		cpSync(join(appDir, page, `${page}.css`), join(pageOut, `${page}.css`));
 	}
 
 	if (includeDev) {
-		for (const file of DEV_FILES) {
-			cpSync(join(DEV_DIR, file), join(outdir, "popup", file));
-		}
+		copyHtml(
+			join(DEV_DIR, "dev.html"),
+			join(outdir, "popup", "dev.html"),
+			"dev",
+		);
+		cpSync(join(DEV_DIR, "dev.css"), join(outdir, "popup", "dev.css"));
 	}
 }
 
