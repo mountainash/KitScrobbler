@@ -1,3 +1,4 @@
+import { connectorMatches } from "@kit/shared/connector-matches";
 import { el, mount } from "@kit/shared/dom";
 import { ICONS, icon } from "@kit/shared/icons";
 import {
@@ -18,6 +19,20 @@ import type { CustomPatterns } from "@upstream/src/core/storage/wrapper";
 const ALL_CONNECTORS: ConnectorMeta[] = [...connectors].sort((a, b) =>
 	a.label.localeCompare(b.label),
 );
+
+/**
+ * Which connectors the narrowed manifest can actually run. `connectorMatches` is
+ * the same function the build uses to write `content_scripts.matches`, so the
+ * options page and the manifest can never disagree.
+ */
+const MATCH_REPORT = connectorMatches();
+const UNREACHABLE = new Set(MATCH_REPORT.unreachableConnectors);
+const PARTIAL = new Set(MATCH_REPORT.partialConnectors);
+const AVAILABLE_CONNECTORS = ALL_CONNECTORS.filter(
+	(c) => !UNREACHABLE.has(c.id),
+);
+
+const ISSUES_URL = "https://github.com/mountainash/KitScrobbler/issues";
 
 /**
  * Upstream's override storage keys, mirroring the constants it exports from
@@ -75,14 +90,18 @@ function switchInput(
 	label: string,
 	checked: boolean,
 	onChange: (checked: boolean) => void,
+	disabled = false,
 ): HTMLInputElement {
 	const input = el("input", {
 		type: "checkbox",
 		switch: true,
 		checked,
+		disabled,
 		"aria-label": label,
 	});
-	input.addEventListener("change", () => onChange(input.checked));
+	if (!disabled) {
+		input.addEventListener("change", () => onChange(input.checked));
+	}
 	return input;
 }
 
@@ -154,6 +173,7 @@ export function connectorsSection(): HTMLElement {
 			{ class: "content__subtitle" },
 			"Turn sites on or off, and override scrobbling behaviour per site.",
 		),
+		UNREACHABLE.size > 0 ? unavailableSummary() : null,
 		el(
 			"div",
 			{ class: "connectors__toolbar" },
@@ -164,8 +184,9 @@ export function connectorsSection(): HTMLElement {
 		list,
 	);
 
+	/** Unavailable connectors are excluded: they can never run. */
 	function enabledCount(): number {
-		return ALL_CONNECTORS.length - Object.keys(disabled).length;
+		return AVAILABLE_CONNECTORS.filter((c) => !disabled[c.id]).length;
 	}
 
 	function matches(connector: ConnectorMeta): boolean {
@@ -328,6 +349,13 @@ export function connectorsSection(): HTMLElement {
 		return el(
 			"div",
 			{ class: "connector__body" },
+			PARTIAL.has(connector.id)
+				? el(
+						"p",
+						{ class: "connector__note" },
+						"Some of this connector's site patterns couldn't be expressed, so it may not work everywhere.",
+					)
+				: null,
 			el("h3", { class: "connector__group-title" }, "General"),
 			...TOGGLES.map((toggle) =>
 				row(
@@ -375,7 +403,64 @@ export function connectorsSection(): HTMLElement {
 		return input;
 	}
 
+	/**
+	 * A connector whose patterns cannot be expressed as match patterns. It can
+	 * never run, so its switch and settings are disabled.
+	 */
+	function unavailableItem(connector: ConnectorMeta): HTMLElement {
+		return el(
+			"li",
+			{ class: "connector-item" },
+			el(
+				"div",
+				{ class: "list-row connector__summary is-unavailable" },
+				el(
+					"div",
+					{ class: "list-row__label" },
+					el("div", { class: "list-row__title" }, connector.label),
+					el("div", { class: "list-row__subtitle" }, connector.id),
+					el(
+						"div",
+						{ class: "connector__warning" },
+						icon("warning-circle", 14),
+						el(
+							"span",
+							{},
+							"Not available: its site patterns can't be expressed as Safari matches. ",
+						),
+						el(
+							"a",
+							{ href: ISSUES_URL, target: "_blank", rel: "noreferrer" },
+							"Raise an issue",
+						),
+						el("span", {}, " if you need it."),
+					),
+				),
+				switchInput(connector.label, false, () => {}, true),
+			),
+		);
+	}
+
+	function unavailableSummary(): HTMLElement {
+		return el(
+			"p",
+			{ class: "connectors__unavailable" },
+			`${UNREACHABLE.size} connectors aren't available in Kit Scrobbler — Safari can't be told about
+			their sites. `,
+			el(
+				"a",
+				{ href: ISSUES_URL, target: "_blank", rel: "noreferrer" },
+				"Raise an issue",
+			),
+			" if you need one of them.",
+		);
+	}
+
 	function connectorItem(connector: ConnectorMeta): HTMLElement {
+		if (UNREACHABLE.has(connector.id)) {
+			return unavailableItem(connector);
+		}
+
 		const node = el("details", { class: "connector" });
 		node.append(
 			el(
@@ -404,7 +489,7 @@ export function connectorsSection(): HTMLElement {
 	}
 
 	function masterRow(): HTMLElement {
-		const total = ALL_CONNECTORS.length;
+		const total = AVAILABLE_CONNECTORS.length;
 		const enabled = enabledCount();
 		return el(
 			"li",

@@ -1,16 +1,18 @@
 import connectors from "@upstream/src/core/connectors";
 
 /**
- * Derives `content_scripts.matches` from upstream's connector registry.
+ * Works out which connectors can be expressed as extension match patterns.
  *
- * Upstream declares `<all_urls>`, so the content script runs on every page the
- * user visits. We narrow it to the apex domain of each host a connector needs.
+ * Shared by the build (`scripts/manifest.ts`, which writes
+ * `content_scripts.matches`) and the options page, which flags the connectors
+ * that cannot work.
  *
- * Connector patterns are written for upstream's *own* matcher (`util/url-match`),
- * not the extension match-pattern grammar, so not every one can be expressed:
- * host wildcards in the middle (`*music.apple.com`), port wildcards (`*32400`)
- * and TLD wildcards (`music.amazon.*`) are reported rather than silently emitted.
- * Only `http`/`https` schemes are ever emitted.
+ * Upstream declares `<all_urls>`, so its content script runs on every page. We
+ * narrow it to the apex domain of each host a connector needs. Connector
+ * patterns are written for upstream's *own* matcher (`util/url-match`), not the
+ * match-pattern grammar, so some cannot be expressed at all: host wildcards in
+ * the middle (`*music.apple.com`), port wildcards (`*32400`) and TLD wildcards
+ * (`music.amazon.*`). Only `http`/`https` schemes are ever emitted.
  */
 
 /** Second-level suffixes where the registrable domain is three labels. */
@@ -84,13 +86,13 @@ function apexDomain(host: string): string | null {
 
 export interface MatchReport {
 	patterns: string[];
-	/** Path-limited `*`-host patterns we keep (self-hosted connectors). */
+	/** Path-limited `*`-host patterns we keep (self-hosted servers). */
 	wildcardHostPatterns: string[];
-	/** Patterns that cannot be expressed as a match pattern. */
-	unrepresentable: { connector: string; pattern: string }[];
-	/** Connectors left with no pattern at all, so they will never match. */
+	/** Connector ids with at least one pattern that cannot be expressed. */
+	partialConnectors: string[];
+	/** Connector ids left with no pattern at all, so they can never run. */
 	unreachableConnectors: string[];
-	/** Connectors reachable over plain http only. */
+	/** Connector ids reachable over plain http only. */
 	httpOnlyConnectors: string[];
 	connectors: number;
 	hosts: number;
@@ -100,7 +102,7 @@ export function connectorMatches(): MatchReport {
 	/** apex domain → the schemes seen for it. */
 	const schemes = new Map<string, Set<string>>();
 	const wildcardHostPatterns = new Set<string>();
-	const unrepresentable: { connector: string; pattern: string }[] = [];
+	const partialConnectors: string[] = [];
 	const unreachableConnectors: string[] = [];
 	const httpOnlyConnectors: string[] = [];
 	let hosts = 0;
@@ -112,12 +114,13 @@ export function connectorMatches(): MatchReport {
 		}
 
 		const connectorSchemes = new Set<string>();
-		let matched = false;
+		let usable = 0;
+		let dropped = 0;
 
 		for (const pattern of patterns) {
 			const parsed = parse(pattern);
 			if (!parsed) {
-				unrepresentable.push({ connector: connector.id, pattern });
+				dropped += 1;
 				continue;
 			}
 
@@ -127,32 +130,34 @@ export function connectorMatches(): MatchReport {
 			// A bare `*` host is valid and already path-limited; keep it verbatim.
 			if (host === "*") {
 				wildcardHostPatterns.add(`${scheme}://*${path}`);
-				matched = true;
+				usable += 1;
 				continue;
 			}
 
 			// `music.amazon.*` means "any TLD" — there is nothing to narrow to.
 			if (host.endsWith(".*")) {
-				unrepresentable.push({ connector: connector.id, pattern });
+				dropped += 1;
 				continue;
 			}
 
 			const apex = apexDomain(host);
 			if (!apex) {
-				unrepresentable.push({ connector: connector.id, pattern });
+				dropped += 1;
 				continue;
 			}
 
-			matched = true;
+			usable += 1;
 			hosts += 1;
 			const seen = schemes.get(apex) ?? new Set<string>();
-			// A host wildcard widens the scheme, since we no longer know the exact host.
+			// A host wildcard widens the scheme, since the exact host is unknown.
 			seen.add(host.includes("*") ? "*" : scheme);
 			schemes.set(apex, seen);
 		}
 
-		if (!matched) {
+		if (usable === 0) {
 			unreachableConnectors.push(connector.id);
+		} else if (dropped > 0) {
+			partialConnectors.push(connector.id);
 		}
 		if (connectorSchemes.has("http") && !connectorSchemes.has("https")) {
 			httpOnlyConnectors.push(connector.id);
@@ -174,7 +179,7 @@ export function connectorMatches(): MatchReport {
 	return {
 		patterns: [...apexPatterns, ...wildcards],
 		wildcardHostPatterns: wildcards,
-		unrepresentable,
+		partialConnectors,
 		unreachableConnectors,
 		httpOnlyConnectors,
 		connectors: connectors.length,

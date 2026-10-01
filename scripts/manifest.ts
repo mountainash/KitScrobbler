@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { connectorMatches } from "../app/shared/connector-matches";
 import { SAFARI_ICON_SIZES } from "./assets";
-import { connectorMatches } from "./matches";
 import { manifestPath, root } from "./paths";
 
 interface PackageJson {
@@ -41,7 +41,8 @@ function safariIcon(size: number): string {
  * - icons are repointed at the Safari artwork, since upstream's manifest names
  *   the canvas-rendered `icons/icon_main_*.png` we no longer build;
  * - `content_scripts.matches` is narrowed from upstream's `<all_urls>` to the
- *   apex domains of the sites the connectors actually need (see `matches.ts`).
+ *   apex domains of the sites the connectors actually need (see
+ *   `app/shared/connector-matches.ts`).
  */
 export function patchManifest(): void {
 	const pkg = JSON.parse(
@@ -85,9 +86,12 @@ function reportMatches(manifest: Manifest): void {
 			`  • ${report.wildcardHostPatterns.length} path-limited "*" host patterns kept (self-hosted servers).`,
 		);
 	}
-	if (report.unrepresentable.length > 0) {
+	console.log(
+		`  • ${report.connectors - report.unreachableConnectors.length - report.partialConnectors.length} connectors fully covered.`,
+	);
+	if (report.partialConnectors.length > 0) {
 		console.log(
-			`  • ${report.unrepresentable.length} patterns cannot be expressed as match patterns (host/port/TLD wildcards).`,
+			`  • ${report.partialConnectors.length} connectors partially covered (some patterns cannot be expressed).`,
 		);
 	}
 	if (report.unreachableConnectors.length > 0) {

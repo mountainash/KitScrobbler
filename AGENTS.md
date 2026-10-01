@@ -110,7 +110,7 @@ the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
    scrobble notifications).
 
 **Content-script scope.** Upstream matches `<all_urls>`, so its content script runs on every page.
-`scripts/matches.ts` narrows that to the apex domain of every host the connectors declare
+`app/shared/connector-matches.ts` narrows that to the apex domain of every host the connectors declare
 (`*://*.spotify.com/*`, …) — for context, 372 connectors collapse to ~510 patterns from 560 hosts.
 Only `http`/`https` schemes are ever emitted. Three things to know:
 
@@ -124,6 +124,9 @@ Only `http`/`https` schemes are ever emitted. Three things to know:
   content-script registration, which is not implemented.
 
 The build prints this report on every run, including any connector reachable over plain http only.
+The options page reads the same `connectorMatches()` result, so it flags what the manifest does:
+unreachable connectors render disabled with a link to the issue tracker, and partially covered ones
+carry a note.
 
 **Icons.** We do not render upstream's icon set. `upstream-driver.ts` drops two of its Vite plugins —
 `generate-icons` (native canvas, renders `src/icons/{main,monochrome}` into `icon_main_*` and per-mode
