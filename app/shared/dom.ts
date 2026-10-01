@@ -47,3 +47,28 @@ export function el<K extends keyof HTMLElementTagNameMap>(
 export function mount(container: HTMLElement, ...nodes: Node[]): void {
 	container.replaceChildren(...nodes);
 }
+
+/**
+ * A native switch — Safari renders `<input type="checkbox" switch>` as the
+ * iOS/macOS toggle, so there is no custom control markup.
+ */
+export function switchControl(
+	label: string,
+	checked: boolean,
+	onChange: (checked: boolean) => void,
+	disabled = false,
+): HTMLInputElement {
+	const input = el("input", {
+		type: "checkbox",
+		switch: true,
+		checked,
+		disabled,
+		"aria-label": label,
+	});
+
+	if (!disabled) {
+		input.addEventListener("change", () => onChange(input.checked));
+	}
+
+	return input;
+}

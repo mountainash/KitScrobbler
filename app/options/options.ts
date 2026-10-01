@@ -11,13 +11,15 @@ import {
 	upstreamThemes,
 } from "@kit/shared/upstream";
 import { connectorsSection } from "./connectors";
+import { youtubeSection } from "./youtube";
 
-type SectionId = "appearance" | "accounts" | "connectors" | "about";
+type SectionId = "appearance" | "accounts" | "connectors" | "youtube" | "about";
 
 const SECTIONS: { id: SectionId; label: string; icon: IconName }[] = [
 	{ id: "appearance", label: "Appearance", icon: ICONS.appearance },
 	{ id: "accounts", label: "Accounts", icon: ICONS.accounts },
 	{ id: "connectors", label: "Connectors", icon: ICONS.connectors },
+	{ id: "youtube", label: "YouTube", icon: ICONS.youtube },
 	{ id: "about", label: "About", icon: ICONS.about },
 ];
 
@@ -376,6 +378,8 @@ function content(): HTMLElement {
 			return accountsSection();
 		case "connectors":
 			return connectorsSection();
+		case "youtube":
+			return youtubeSection();
 		case "about":
 			return aboutSection();
 		default:

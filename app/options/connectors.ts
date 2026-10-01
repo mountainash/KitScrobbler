@@ -1,5 +1,5 @@
 import { connectorMatches } from "@kit/shared/connector-matches";
-import { el, mount } from "@kit/shared/dom";
+import { el, mount, switchControl } from "@kit/shared/dom";
 import { ICONS, icon } from "@kit/shared/icons";
 import {
 	type OverrideKey,
@@ -84,25 +84,6 @@ const BEHAVIOURS: { value: string; label: string }[] = [
 	{ value: "recognized", label: "Only recognised tracks" },
 	{ value: "edited", label: "Only edited tracks" },
 ];
-
-function switchInput(
-	label: string,
-	checked: boolean,
-	onChange: (checked: boolean) => void,
-	disabled = false,
-): HTMLInputElement {
-	const input = el("input", {
-		type: "checkbox",
-		switch: true,
-		checked,
-		disabled,
-		"aria-label": label,
-	});
-	if (!disabled) {
-		input.addEventListener("change", () => onChange(input.checked));
-	}
-	return input;
-}
 
 function select(
 	label: string,
@@ -367,7 +348,7 @@ export function connectorsSection(): HTMLElement {
 						el("span", {}, " if you need it."),
 					),
 				),
-				switchInput(connector.label, false, () => {}, true),
+				switchControl(connector.label, false, () => {}, true),
 			),
 		);
 	}
@@ -422,7 +403,7 @@ export function connectorsSection(): HTMLElement {
 				),
 			),
 			// Matches upstream: "on" unless every connector is disabled.
-			switchInput("All connectors", enabled > 0, (checked) =>
+			switchControl("All connectors", enabled > 0, (checked) =>
 				toggleAll(checked),
 			),
 		);

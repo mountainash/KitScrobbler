@@ -11,6 +11,7 @@
  */
 import type { ConnectorMeta } from "@upstream/src/core/connectors";
 import type {
+	ConnectorOptions,
 	ConnectorsOverrideOptions,
 	ConnectorsOverrideOptionValues,
 	GlobalOptions,
@@ -109,6 +110,7 @@ export type OverrideKey = keyof ConnectorsOverrideOptionValues;
 export interface UpstreamOptions {
 	read(): Promise<GlobalOptions | null>;
 	readOverrides(): Promise<ConnectorsOverrideOptions | null>;
+	readConnectorOptions(): Promise<ConnectorOptions | null>;
 	setConnectorEnabled(
 		connector: ConnectorMeta,
 		enabled: boolean,
@@ -118,6 +120,12 @@ export interface UpstreamOptions {
 		connectorId: string,
 		key: OverrideKey,
 		value: boolean | undefined,
+	): Promise<void>;
+	/** Writes one connector-specific option (e.g. `YouTube` / `scrobbleMusicOnly`). */
+	setConnectorOption(
+		connector: string,
+		key: string,
+		value: boolean,
 	): Promise<void>;
 }
 
@@ -145,10 +153,14 @@ export async function upstreamOptions(): Promise<UpstreamOptions | null> {
 			browserStorage
 				.getStorage(browserStorage.CONNECTORS_OVERRIDE_OPTIONS)
 				.get(),
+		readConnectorOptions: () =>
+			browserStorage.getStorage(browserStorage.CONNECTORS_OPTIONS).get(),
 		setConnectorEnabled: options.setConnectorEnabled,
 		setAllConnectorsEnabled: options.setAllConnectorsEnabled,
 		setOverride: (connectorId, key, value) =>
 			options.setConnectorOverrideOption(connectorId, key, value),
+		setConnectorOption: (connector, key, value) =>
+			options.setConnectorOption(connector, key, value),
 	};
 }
 

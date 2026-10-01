@@ -20,6 +20,7 @@ export const ICONS = {
 	appearance: "paint-brush",
 	accounts: "user-circle",
 	connectors: "puzzle-piece",
+	youtube: "youtube-logo",
 	about: "info",
 	search: "magnifying-glass",
 	heart: "heart",
