@@ -1,0 +1,97 @@
+/*
+ * Kit Scrobbler design tokens.
+ *
+ * Everything is expressed with `light-dark()` so light/dark are handled entirely
+ * by the `color-scheme` property — no duplicated dark-mode blocks, no JS colour
+ * juggling. Components must never hard-code a colour; use these custom properties.
+ */
+:root {
+	color-scheme: light dark;
+
+	--font-ui:
+		-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+		"Helvetica Neue", sans-serif;
+
+	/* 4/8pt spacing grid */
+	--space-1: 4px;
+	--space-2: 8px;
+	--space-3: 12px;
+	--space-4: 16px;
+	--space-5: 20px;
+	--space-6: 24px;
+	--space-8: 32px;
+
+	--radius-sm: 6px;
+	--radius-md: 10px;
+	--radius-lg: 14px;
+	--radius-pill: 999px;
+
+	--control-height: 28px;
+	--hairline: 0.5px;
+
+	--text-primary: light-dark(#1d1d1f, #f5f5f7);
+	--text-secondary: light-dark(#6e6e73, #a1a1a6);
+	--text-tertiary: light-dark(#8e8e93, #8e8e93);
+
+	--bg-page: light-dark(#f2f2f7, #1c1c1e);
+	--bg-panel: light-dark(#ffffff, #2c2c2e);
+	--bg-raised: light-dark(#ffffff, #3a3a3c);
+	--bg-hover: light-dark(rgba(0, 0, 0, 0.045), rgba(255, 255, 255, 0.07));
+
+	--separator: light-dark(rgba(60, 60, 67, 0.22), rgba(84, 84, 88, 0.42));
+	--separator-opaque: light-dark(#c6c6c8, #38383a);
+
+	--fill-secondary: light-dark(
+		rgba(120, 120, 128, 0.12),
+		rgba(120, 120, 128, 0.24)
+	);
+	--fill-tertiary: light-dark(
+		rgba(120, 120, 128, 0.08),
+		rgba(120, 120, 128, 0.16)
+	);
+
+	--accent: AccentColor;
+	--accent-contrast: AccentColorText;
+	--danger: light-dark(#d70015, #ff453a);
+	--success: light-dark(#248a3d, #30d158);
+
+	--shadow-popover:
+		0 8px 32px rgba(0, 0, 0, 0.18), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+	--shadow-control: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+:root[data-theme="light"] {
+	color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+	color-scheme: dark;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+}
+
+body {
+	font-family: var(--font-ui);
+	font-size: 13px;
+	line-height: 1.4;
+	color: var(--text-primary);
+	background: var(--bg-page);
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms;
+		transition-duration: 0.01ms;
+	}
+}

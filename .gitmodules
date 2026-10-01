@@ -1,0 +1,4 @@
+[submodule "src/web-scrobbler"]
+	path = src/web-scrobbler
+	url = https://github.com/mountainash/web-scrobbler.git
+	branch = master
