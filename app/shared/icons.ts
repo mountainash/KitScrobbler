@@ -33,7 +33,7 @@ export const ICONS = {
 
 /** A Phosphor glyph per scrobbling service. */
 export const SERVICE_ICONS: Record<string, IconName> = {
-	"Last.fm": "heart",
+	"Last.fm": "lastfm-logo",
 	"Libre.fm": "heart-half",
 	ListenBrainz: "brain",
 	Maloja: "chart-donut",
