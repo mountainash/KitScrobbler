@@ -30,7 +30,7 @@ Run these commands from the repository root.
 
 | Command | Action |
 | :--- | :--- |
-| `bun install` | Install dependencies and initialise the Web Scrobbler submodule |
+| `bun install` | Install dependencies, fetch the Web Scrobbler submodule and its dependencies |
 | `bun run dev` | Serve the UI preview at <http://localhost:3000> with live reload |
 | `bun run build:ui` | Bundle the popup + options into the raw Safari bundle |
 | `bun run build` | Full build: raw bundle → Kit UI → manifest patch → Xcode app (macOS only) |

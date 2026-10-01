@@ -58,7 +58,7 @@ Potential confusion to avoid: upstream's *own* source lives at `src/web-scrobble
 
 | Command | Action |
 | :--- | :--- |
-| `bun install` | Install dependencies; `postinstall` initialises the submodule |
+| `bun install` | Install dependencies; `postinstall` fetches the submodule and its deps |
 | `bun run dev` | Serve the UI at <http://localhost:3000> with live reload (no macOS needed) |
 | `bun run build:ui` | Bun.build the popup + options into the raw Safari bundle |
 | `bun run build` | Full macOS pipeline: raw bundle → our UI → manifest patch → Xcode app |
@@ -83,9 +83,9 @@ imported dynamically is that `webextension-polyfill` throws at module-evaluation
 extension — the lazy loader keeps `bun run dev` alive and returns `null` (preview) there. Do not copy
 upstream logic, constants, or shapes into `app/`; unused code is tree-shaken at build.
 
-Type-checking upstream source needs the submodule's dependencies. Run `npm ci` inside
-`src/web-scrobbler` (the build does this automatically when `node_modules` is missing), and note that
-`tsconfig.json` includes the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
+Type-checking upstream source needs the submodule's dependencies; `bun install`'s postinstall installs
+them with `npm ci` (`scripts/setup.ts`), and the build ensures them too. `tsconfig.json` also includes
+the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
 
 ## Build pipeline
 
