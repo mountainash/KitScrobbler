@@ -15,20 +15,29 @@ export const upstreamSrcDir = join(upstreamDir, "src");
 /** Our build output directory (gitignored). */
 export const buildDir = join(root, "build");
 
-/** Our copy of the raw Safari web-extension bundle that we wrap. */
-export const rawDir = join(buildDir, "safariraw");
+/**
+ * The unpacked Safari web extension. This is a normal, loadable extension folder
+ * — point Safari's "Add Temporary Extension" at it (or wrap it with `bundle`).
+ */
+export const previewDir = join(buildDir, "preview");
+
+/** Where upstream's toolchain emits its raw Safari bundle. */
+export const upstreamRawDir = join(upstreamDir, "build", "safariraw");
+
+/** The generated manifest inside the preview extension. */
+export const manifestPath = join(previewDir, "manifest.json");
+
+/** Dev-server output for `bun run dev` (UI only). */
+export const devDir = join(buildDir, "dev");
 
 /** Packaged distributables (gitignored). */
 export const distDir = join(root, "dist");
 
-/** Where upstream's toolchain emits the raw Safari bundle. */
-export const upstreamRawDir = join(upstreamDir, "build", "safariraw");
+/** The Xcode archive produced by `bun run bundle`. */
+export const archivePath = join(buildDir, "KitScrobbler.xcarchive");
 
-/** Where upstream's Xcode step emits the built app. */
-export const upstreamAppDir = join(upstreamDir, "build", "safari");
-
-/** The generated manifest inside our raw bundle. */
-export const manifestPath = join(rawDir, "manifest.json");
+/** The export options plist written by `bun run bundle`. */
+export const exportOptionsPath = join(buildDir, "ExportOptions.plist");
 
 /** The driver script upstream's own `tsx` runs to produce the raw bundle. */
 export const upstreamDriver = join(import.meta.dir, "upstream-driver.ts");

@@ -1,68 +1,156 @@
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import {
-	buildDir,
+	archivePath,
 	distDir,
-	rawDir,
-	upstreamAppDir,
+	exportOptionsPath,
+	previewDir,
 	upstreamDir,
 	upstreamRawDir,
 } from "./paths";
 
-function hasXcodebuild(): boolean {
+const WORKSPACE =
+	".xcode/Web Scrobbler/Web Scrobbler.xcodeproj/project.xcworkspace";
+const SCHEME = "Web Scrobbler (macOS)";
+
+function requireMacOS(): void {
+	if (process.platform !== "darwin") {
+		throw new Error(
+			"Bundling for the App Store needs macOS + Xcode. `bun run build` works everywhere.",
+		);
+	}
+}
+
+function requireXcode(): void {
 	try {
 		execFileSync("xcodebuild", ["-version"], { stdio: "ignore" });
-		return true;
 	} catch {
-		return false;
+		throw new Error("xcodebuild was not found. Install Xcode and retry.");
 	}
+}
+
+/** Fails fast when the machine cannot produce an App Store build. */
+export function assertCanBundle(): void {
+	requireMacOS();
+	requireXcode();
 }
 
 /**
- * Wraps our UI-overlaid raw bundle into a native Safari app via Xcode.
+ * Places the preview extension where upstream's Xcode project expects it.
  *
- * Upstream's Xcode project references `../../../build/safariraw` relative to
- * `.xcode/`, so the bundle has to be placed back inside the submodule before
- * running `safari.sh`. The built app is copied out to our own `build/`.
+ * The pbxproj references `../../../build/safariraw` relative to `.xcode/`, so the
+ * bundle has to sit inside the submodule (in its gitignored `build/`).
  */
-export function buildXcodeApp(): string {
-	if (process.platform !== "darwin") {
-		throw new Error("Building the Safari app requires macOS + Xcode.");
-	}
-	if (!hasXcodebuild()) {
-		throw new Error("xcodebuild was not found. Install Xcode, then retry.");
-	}
-
+export function stagePreviewForXcode(): void {
 	rmSync(upstreamRawDir, { recursive: true, force: true });
-	cpSync(rawDir, upstreamRawDir, { recursive: true });
-
-	console.log("• Compiling the Safari app with xcodebuild…");
-	execFileSync("bash", ["safari.sh"], { cwd: upstreamDir, stdio: "inherit" });
-
-	if (!existsSync(upstreamAppDir)) {
-		throw new Error("Xcode did not produce build/safari.");
-	}
-
-	const out = join(buildDir, "safari");
-	rmSync(out, { recursive: true, force: true });
-	cpSync(upstreamAppDir, out, { recursive: true });
-
-	const app = readdirSync(out).find((entry) => entry.endsWith(".app"));
-	const appPath = app ? join(out, app) : out;
-	console.log(`• Safari app: ${appPath}`);
-	return appPath;
+	cpSync(previewDir, upstreamRawDir, { recursive: true });
+	console.log(`• Staged preview bundle for Xcode (${upstreamRawDir})`);
 }
 
-/** Packages the built app into a zip for distribution. */
-export function packageApp(appPath: string): string {
+/** Archives the host app + extension with `xcodebuild archive`. */
+export function createArchive(): string {
+	requireMacOS();
+	requireXcode();
+
+	rmSync(archivePath, { recursive: true, force: true });
+
+	const team = process.env.DEVELOPMENT_TEAM;
+	const args = [
+		"archive",
+		"-workspace",
+		WORKSPACE,
+		"-scheme",
+		SCHEME,
+		"-configuration",
+		"Release",
+		"-destination",
+		"generic/platform=macOS",
+		"-archivePath",
+		archivePath,
+		"-allowProvisioningUpdates",
+		"CODE_SIGN_STYLE=Automatic",
+	];
+	if (team) {
+		args.push(`DEVELOPMENT_TEAM=${team}`);
+	}
+
+	console.log("• Archiving with xcodebuild (Release)…");
+	execFileSync("xcodebuild", args, { cwd: upstreamDir, stdio: "inherit" });
+
+	if (!existsSync(archivePath)) {
+		throw new Error("xcodebuild did not produce an archive.");
+	}
+	return archivePath;
+}
+
+/**
+ * Exports the archive for the App Store.
+ *
+ * Set `EXPORT_DESTINATION=upload` to send it straight to App Store Connect
+ * (needs credentials in the keychain); the default `export` writes a `.pkg`
+ * into `dist/` for manual upload with Transporter.
+ */
+export function exportForAppStore(archive: string): string {
+	requireXcode();
+
+	const method = process.env.EXPORT_METHOD ?? "app-store-connect";
+	const destination = process.env.EXPORT_DESTINATION ?? "export";
+
+	writeFileSync(
+		exportOptionsPath,
+		exportOptionsPlist({
+			method,
+			destination,
+			team: process.env.DEVELOPMENT_TEAM,
+		}),
+	);
+
 	mkdirSync(distDir, { recursive: true });
 
-	const zip = join(distDir, "KitScrobbler-safari.zip");
-	rmSync(zip, { force: true });
-	execFileSync("ditto", ["-c", "-k", "--keepParent", appPath, zip], {
-		stdio: "inherit",
-	});
-	console.log(`• Packaged ${zip}`);
-	return zip;
+	console.log(`• Exporting for the App Store (${method}, ${destination})…`);
+	execFileSync(
+		"xcodebuild",
+		[
+			"-exportArchive",
+			"-archivePath",
+			archive,
+			"-exportOptionsPlist",
+			exportOptionsPath,
+			"-exportPath",
+			distDir,
+			"-allowProvisioningUpdates",
+		],
+		{ cwd: upstreamDir, stdio: "inherit" },
+	);
+
+	return distDir;
+}
+
+function exportOptionsPlist(options: {
+	method: string;
+	destination: string;
+	team?: string;
+}): string {
+	const entries = [
+		"\t<key>method</key>",
+		`\t<string>${options.method}</string>`,
+		"\t<key>destination</key>",
+		`\t<string>${options.destination}</string>`,
+		"\t<key>signingStyle</key>",
+		"\t<string>automatic</string>",
+	];
+	if (options.team) {
+		entries.push("\t<key>teamID</key>", `\t<string>${options.team}</string>`);
+	}
+
+	return [
+		'<?xml version="1.0" encoding="UTF-8"?>',
+		'<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
+		'<plist version="1.0">',
+		"<dict>",
+		...entries,
+		"</dict>",
+		"</plist>",
+		"",
+	].join("\n");
 }

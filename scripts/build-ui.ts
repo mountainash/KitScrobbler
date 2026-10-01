@@ -1,11 +1,11 @@
 import { cpSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { appDir, rawDir } from "./paths";
+import { appDir, previewDir } from "./paths";
 import { upstreamAlias } from "./plugins/upstream-alias";
 import { vIfdef } from "./plugins/v-ifdef";
 
 export interface BuildUiOptions {
-	/** Where to write the bundled pages. Defaults to `<safariraw>/src/ui`. */
+	/** Where to write the bundled pages. Defaults to `<preview>/src/ui`. */
 	outdir?: string;
 	minify?: boolean;
 	sourcemap?: boolean;
@@ -45,7 +45,7 @@ function copyStatic(outdir: string): void {
  */
 export async function buildUi(options: BuildUiOptions = {}) {
 	const { minify = true, sourcemap = false } = options;
-	const outdir = options.outdir ?? join(rawDir, "src", "ui");
+	const outdir = options.outdir ?? join(previewDir, "src", "ui");
 	mkdirSync(outdir, { recursive: true });
 
 	const result = await Bun.build({
@@ -83,5 +83,5 @@ export async function buildUi(options: BuildUiOptions = {}) {
 
 if (import.meta.main) {
 	await buildUi({ sourcemap: true });
-	console.log(`• Built UI into ${join(rawDir, "src", "ui")}`);
+	console.log(`• Built UI into ${join(previewDir, "src", "ui")}`);
 }

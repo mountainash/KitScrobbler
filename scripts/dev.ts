@@ -1,7 +1,7 @@
 import { watch } from "node:fs";
 import { join } from "node:path";
 import { buildUi } from "./build-ui";
-import { appDir, buildDir } from "./paths";
+import { appDir, devDir } from "./paths";
 
 /**
  * Live UI preview. Bun.build has no watch mode, so we rebuild on filesystem
@@ -11,7 +11,7 @@ import { appDir, buildDir } from "./paths";
  * this useful for iterating on the Apple design system inside the Linux
  * devcontainer.
  */
-const outdir = join(buildDir, "preview");
+const outdir = devDir;
 const port = Number(process.env.PORT ?? 3000);
 
 const RELOAD_CLIENT = `<script>new EventSource('/__reload').onmessage=()=>location.reload();</script>`;

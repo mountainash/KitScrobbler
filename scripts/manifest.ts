@@ -14,8 +14,8 @@ interface Manifest {
 }
 
 /**
- * Rewrites the *generated* manifest in our raw bundle so the extension presents
- * as Kit Scrobbler. The manifest is produced by upstream's Vite plugin from
+ * Rewrites the *generated* manifest in the preview extension so it presents as
+ * Kit Scrobbler. The manifest is produced by upstream's Vite plugin from
  * `manifest.config.ts`; we only patch the build output, never the submodule.
  */
 export function patchManifest(): void {

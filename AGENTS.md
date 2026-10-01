@@ -16,8 +16,8 @@ possible scrobbling experience in **Safari on macOS**.
 
 2. **Bun is the build tool.**
    `Bun.build`, `Bun.serve`, Bun scripts and Bun plugins do the work. Upstream's own Vite/esbuild
-   toolchain is used *only* as an interim step to produce the raw Safari web-extension bundle that we
-   wrap. Do not add webpack/rollup/vite to our own pipeline.
+   toolchain is used *only* to produce the loadable Safari web extension. Do not add
+   webpack/rollup/vite to our own pipeline.
 
 3. **Apple experience only.**
    macOS Safari is the only target. No cross-platform fallbacks, no lowest-common-denominator UI.
@@ -39,8 +39,9 @@ app/                  Kit Scrobbler's own source (our code — edit freely)
 scripts/              Bun build pipeline
   plugins/            Bun.build plugins (upstream alias, #v-ifdef)
 src/web-scrobbler/    READ-ONLY git submodule (upstream Web Scrobbler)
-build/                Build output (gitignored)
-dist/                 Packaged artifacts (gitignored)
+build/preview/        The loadable extension (gitignored)
+build/dev/            Dev-server output (gitignored)
+dist/                 App Store artifacts (gitignored)
 ```
 
 Potential confusion to avoid: upstream's *own* source lives at `src/web-scrobbler/src/`. Our source is
@@ -48,11 +49,13 @@ Potential confusion to avoid: upstream's *own* source lives at `src/web-scrobble
 
 ## Environment
 
-- **macOS + Xcode** is required for the full build (`bun run build`), because the raw Safari web
-  extension is wrapped into a native app by `xcodebuild`.
-- The **DevContainer is Linux (Bun)**. Inside it you can run `bun run dev`, `bun run build:ui`,
-  `bun run typecheck`, `bun run check` and `bun run guard`. You cannot build, run or test the actual
-  Safari extension there.
+- `bun run build` produces the **loadable extension** at `build/preview` and works anywhere Bun does
+  (including this Linux DevContainer) — provided upstream's native libraries are present.
+- `bun run bundle` archives and exports the App Store build, so it needs **macOS + Xcode** and a
+  signing identity.
+- Upstream's build needs native libraries: on macOS `brew install pango`; on Linux the cairo/pango
+  development packages. This container lacks them, so the full upstream build only runs on a machine
+  that has them.
 
 ## Commands
 
@@ -60,8 +63,9 @@ Potential confusion to avoid: upstream's *own* source lives at `src/web-scrobble
 | :--- | :--- |
 | `bun install` | Install dependencies; `postinstall` fetches the submodule and its deps |
 | `bun run dev` | Serve the UI at <http://localhost:3000> with live reload (no macOS needed) |
-| `bun run build:ui` | Bun.build the popup + options into the raw Safari bundle |
-| `bun run build` | Full macOS pipeline: raw bundle → our UI → manifest patch → Xcode app |
+| `bun run build:ui` | Bun.build the popup + options into `build/preview` |
+| `bun run build` | Build the loadable extension into `build/preview` (any OS) |
+| `bun run bundle` | Archive + export the App Store build to `dist/` (macOS + Xcode) |
 | `bun run typecheck` | `tsc --noEmit` |
 | `bun run check` | Biome lint + format check |
 | `bun run fix` | Biome autofix |
@@ -89,9 +93,11 @@ the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
 
 ## Build pipeline
 
+`bun run build` assembles the loadable extension in `build/preview`:
+
 1. `scripts/upstream.ts` drives upstream's three Vite builds directly (background, content, popup +
-   options) with `VITE_PROD`/`VITE_SAFARI` set, deliberately stopping **before** Xcode, and copies
-   `build/safariraw` out of the submodule.
+   options) with `VITE_PROD`/`VITE_SAFARI` set — including its connector and icon steps — and copies
+   the result out of the submodule.
 2. `scripts/build-ui.ts` runs `Bun.build` over `app/**` and writes our popup + options to the exact
    paths the generated manifest points at (`src/ui/popup/index.html`, `src/ui/options/index.html`).
    This is how we replace the UI without touching upstream.
@@ -99,9 +105,14 @@ the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
    pipeline rewrites `light-dark()` and flattens CSS Nesting — the exact modern CSS we insist on
    shipping as-is. So `index.html` references the built `./popup.js` directly and links its
    stylesheets explicitly (no `@import`).
-3. The generated `manifest.json` is patched in-place in the build output (name/version/description).
-4. `scripts/xcode.ts` runs upstream's `safari.sh`-equivalent Xcode build against our `safariraw` and
-   copies the resulting app to `build/`.
+3. The generated `manifest.json` is patched in place (name/version).
+
+`build/preview` is a plain, complete web extension folder — point Safari's Developer tab at it with
+**Add Temporary Extension** to run it, exactly like loading an unpacked extension in Firefox/Chromium.
+
+`bun run bundle` takes that same bundle, stages it inside the submodule where upstream's Xcode project
+expects it, runs `xcodebuild archive`, and exports for the App Store. Configure the host app's bundle
+identifiers, team and signing in the Xcode project (they cannot be set per-target from the CLI).
 
 ## Upstream landmines (do not forget these)
 
@@ -115,7 +126,7 @@ the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
   statically resolve that import or inline the connectors directory.
 - **The manifest is generated**, not a static file, and uses `_locales` message placeholders. Patch
   only the build output.
-- **Never hand-edit `build/safariraw`.** It is regenerated; make changes in `app/` or `scripts/`.
+- **Never hand-edit `build/preview`.** It is regenerated; make changes in `app/` or `scripts/`.
 
 ## UI guidelines (Apple design system)
 

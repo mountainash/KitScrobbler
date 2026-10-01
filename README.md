@@ -32,21 +32,31 @@ Run these commands from the repository root.
 | :--- | :--- |
 | `bun install` | Install dependencies, fetch the Web Scrobbler submodule and its dependencies |
 | `bun run dev` | Serve the UI preview at <http://localhost:3000> with live reload |
-| `bun run build:ui` | Bundle the popup + options into the raw Safari bundle |
-| `bun run build` | Full build: raw bundle → Kit UI → manifest patch → Xcode app (macOS only) |
+| `bun run build:ui` | Bundle the popup + options into `build/preview` |
+| `bun run build` | Build the loadable extension into `build/preview` (any OS) |
+| `bun run bundle` | Archive + export the App Store build to `dist/` (macOS + Xcode) |
 | `bun run typecheck` | Type-check with `tsc` |
 | `bun run check` | Lint + format check with Biome |
 | `bun run fix` | Biome autofix |
 | `bun run guard` | Verify the upstream submodule has not been modified |
 
-### 🍎 The macOS bits
+### 🏗 Building the extension
 
-`bun run dev` and `bun run build:ui` work anywhere Bun does, including the DevContainer — the UI falls
-back to mock data outside an extension context, so you can iterate on the Apple design system directly.
+Building is two steps:
 
-`bun run build` produces the actual `.app` and therefore needs **macOS + Xcode**. It runs the vendored
-upstream toolchain to emit a raw Safari web extension, replaces its popup and options pages with ours,
-patches the generated manifest, and wraps the result into a native app with `xcodebuild`.
+1. **`bun run build`** produces the loadable extension at `build/preview`. This is a plain web
+   extension folder, so you can run it without Xcode: in Safari open **Settings → Advanced**, tick
+   **Show features for web developers**, then in the **Developer** tab click **Add Temporary
+   Extension…** and choose `build/preview`.
+2. **`bun run bundle`** wraps the same bundle in its native host app, archives it with `xcodebuild`
+   and exports it to `dist/` for the App Store. This step needs **macOS + Xcode** and a signing
+   identity.
+
+`bun run build` needs upstream's native libraries: `brew install pango` on macOS, or the cairo/pango
+development packages on Linux.
+
+`bun run dev` works anywhere Bun does, including the DevContainer — the UI falls back to mock data
+outside an extension context, so you can iterate on the Apple design system directly.
 
 You can also run this project inside a DevContainer in VS Code. After reopening the folder in the
 container, dependencies are installed automatically.
