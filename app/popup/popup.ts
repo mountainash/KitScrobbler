@@ -1,4 +1,8 @@
-import { extensionUrl, isExtensionContext } from "@kit/shared/browser";
+import {
+	extensionUrl,
+	isExtensionContext,
+	openInNewTab,
+} from "@kit/shared/browser";
 import { el, mount } from "@kit/shared/dom";
 import { ICONS, icon } from "@kit/shared/icons";
 import {
@@ -35,6 +39,8 @@ export interface PopupSong {
 }
 
 function header(): HTMLElement {
+	const optionsUrl = extensionUrl("src/ui/options/index.html");
+
 	return el(
 		"header",
 		{ class: "popup__header" },
@@ -44,9 +50,15 @@ function header(): HTMLElement {
 			"a",
 			{
 				class: "popup__settings",
-				href: extensionUrl("src/ui/options/index.html"),
+				href: optionsUrl,
 				title: "Settings",
 				"aria-label": "Settings",
+				// A plain anchor does not open from a popup, so we prevent the
+				// default and create the tab — upstream's PopupAnchor does the same.
+				onClick: (event) => {
+					event.preventDefault();
+					void openInNewTab(optionsUrl);
+				},
 			},
 			icon(ICONS.settings, 16),
 		),

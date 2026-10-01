@@ -27,6 +27,8 @@ const server = Bun.serve({
 		"/popup/index.html": popupHtml,
 		"/popup/dev.html": devHtml,
 		"/options/index.html": optionsHtml,
+		// The popup links to the manifest's options path; serve it in preview too.
+		"/src/ui/options/index.html": optionsHtml,
 	},
 });
 

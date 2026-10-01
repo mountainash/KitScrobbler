@@ -25,9 +25,12 @@ export interface BrowserApi {
 		query(queryInfo: {
 			active?: boolean;
 			currentWindow?: boolean;
-		}): Promise<{ id?: number }[]>;
+		}): Promise<{ id?: number; index?: number }[]>;
 		sendMessage(tabId: number, message: unknown): Promise<unknown>;
-		create(createProperties: { url?: string }): Promise<unknown>;
+		create(createProperties: {
+			url?: string;
+			index?: number;
+		}): Promise<unknown>;
 	};
 	storage: {
 		local: StorageArea;
@@ -67,4 +70,26 @@ export async function getBrowser(): Promise<BrowserApi | null> {
 export function extensionUrl(path: string): string {
 	const getURL = chrome()?.runtime?.getURL;
 	return getURL ? getURL(path) : path;
+}
+
+/**
+ * Opens a URL in a new tab, next to the current one.
+ *
+ * A plain anchor does not work from a popup, which is why upstream's
+ * `PopupAnchor` does the same thing: it prevents the default and creates the tab
+ * through the tabs API.
+ */
+export async function openInNewTab(url: string): Promise<void> {
+	const browser = await getBrowser();
+	if (!browser) {
+		window.open(url, "_blank");
+		return;
+	}
+
+	try {
+		const [tab] = await browser.tabs.query({ active: true });
+		await browser.tabs.create({ url, index: (tab?.index ?? 0) + 1 });
+	} catch {
+		await browser.tabs.create({ url });
+	}
 }
