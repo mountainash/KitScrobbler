@@ -103,11 +103,27 @@ the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
    rewrites `light-dark()` and flattens CSS Nesting — the exact modern CSS we insist on shipping as-is.
    The HTML is copied with just its entry script rewritten (`./popup.ts` → `./popup.js`); the source
    points at the TypeScript entry so Bun's dev server can bundle it.
-3. The generated `manifest.json` is patched in place: name, version, and its icon entries repointed at
-   the Safari artwork.
+3. The generated `manifest.json` is patched in place: name, version, icon entries repointed at the
+   Safari artwork, and `content_scripts.matches` narrowed from upstream's `<all_urls>`.
 4. `scripts/assets.ts` stages the images upstream's build no longer produces: the checked-in
    `src/icons/icon_safari_*.png` (manifest/toolbar) and `src/img/main/*` (in-page info box and
    scrobble notifications).
+
+**Content-script scope.** Upstream matches `<all_urls>`, so its content script runs on every page.
+`scripts/matches.ts` narrows that to the apex domain of every host the connectors declare
+(`*://*.spotify.com/*`, …) — for context, 372 connectors collapse to ~510 patterns from 560 hosts.
+Only `http`/`https` schemes are ever emitted. Three things to know:
+
+- Connector patterns are written for upstream's *own* matcher, not the match-pattern grammar. Host
+  wildcards in the middle, port wildcards and TLD wildcards (`music.amazon.*`) cannot be expressed,
+  so they are dropped and reported — today that leaves `amazon` and `amazon-alexa` with no pattern.
+- Self-hosted servers (Plex, Synology, Nextcloud, …) match *any* host by path; those are kept as
+  path-limited `*` host patterns, which is as narrow as they can get.
+- Because the manifest no longer matches everything, a user's **custom URL patterns will not inject
+  the content script** — upstream relied on `<all_urls>` for that. Widening this needs dynamic
+  content-script registration, which is not implemented.
+
+The build prints this report on every run, including any connector reachable over plain http only.
 
 **Icons.** We do not render upstream's icon set. `upstream-driver.ts` drops two of its Vite plugins —
 `generate-icons` (native canvas, renders `src/icons/{main,monochrome}` into `icon_main_*` and per-mode
