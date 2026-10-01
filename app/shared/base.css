@@ -137,11 +137,9 @@ input[type="checkbox"][switch] {
 
 /* Native select ----------------------------------------------------------- */
 select {
+	appearance: auto;
 	min-height: var(--control-height);
-	padding: 0 var(--space-2);
-	border: var(--hairline) solid var(--separator);
 	border-radius: var(--radius-sm);
-	background: var(--bg-raised);
 }
 
 /* Text field -------------------------------------------------------------- */
