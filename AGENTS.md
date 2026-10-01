@@ -50,13 +50,10 @@ Potential confusion to avoid: upstream's *own* source lives at `src/web-scrobble
 
 ## Environment
 
-- `bun run build` produces the **loadable extension** at `build/preview` and works anywhere Bun does
-  (including this Linux DevContainer) — provided upstream's native libraries are present.
+- `bun run build` produces the **loadable extension** at `build/preview` and works anywhere Bun does,
+  including this Linux DevContainer — we no longer use upstream's native image tooling (see below).
 - `bun run bundle` archives and exports the App Store build, so it needs **macOS + Xcode** and a
   signing identity.
-- Upstream's build needs native libraries: on macOS `brew install pango`; on Linux the cairo/pango
-  development packages. This container lacks them, so the full upstream build only runs on a machine
-  that has them.
 
 ## Commands
 
@@ -106,7 +103,19 @@ the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
    rewrites `light-dark()` and flattens CSS Nesting — the exact modern CSS we insist on shipping as-is.
    The HTML is copied with just its entry script rewritten (`./popup.ts` → `./popup.js`); the source
    points at the TypeScript entry so Bun's dev server can bundle it.
-3. The generated `manifest.json` is patched in place (name/version).
+3. The generated `manifest.json` is patched in place: name, version, and its icon entries repointed at
+   the Safari artwork.
+4. `scripts/assets.ts` stages the images upstream's build no longer produces: the checked-in
+   `src/icons/icon_safari_*.png` (manifest/toolbar) and `src/img/main/*` (in-page info box and
+   scrobble notifications).
+
+**Icons.** We do not render upstream's icon set. `upstream-driver.ts` drops two of its Vite plugins —
+`generate-icons` (native canvas, renders `src/icons/{main,monochrome}` into `icon_main_*` and per-mode
+`action_*` files) and `minify-images` (imagemin binaries) — and stubs `canvas` via a module hook
+(`canvas-stub-hooks.mjs`), because merely importing the Vite configs would otherwise load it. We ship
+`src/icons/icon_safari_*.png` instead. Note upstream's `action.ts` still asks for per-mode
+`icons/action_<mode>_<size>_<theme>.png` at runtime; those no longer exist, so the toolbar keeps the
+Safari icon from the manifest.
 
 `build/preview` is a plain, complete web extension folder — point Safari's Developer tab at it with
 **Add Temporary Extension** to run it, exactly like loading an unpacked extension in Firefox/Chromium.

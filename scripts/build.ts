@@ -1,3 +1,4 @@
+import { stageSafariAssets } from "./assets";
 import { buildUi } from "./build-ui";
 import { patchManifest } from "./manifest";
 import { previewDir } from "./paths";
@@ -20,6 +21,7 @@ export async function buildPreview(
 ): Promise<string> {
 	buildUpstreamRaw();
 	await buildUi({ includeDev: options.includeDev });
+	stageSafariAssets();
 	patchManifest();
 	return previewDir;
 }

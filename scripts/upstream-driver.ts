@@ -10,8 +10,14 @@
  * (Xcode) for the Safari target whenever it is not a dev build — and we must
  * overlay our own UI *before* Xcode runs.
  */
+import { register } from "node:module";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+
+// Upstream's Vite configs import `generate-icons`, which imports the native
+// `canvas` package at module load. We skip that plugin, so stub the module out
+// before importing the configs — canvas needs cairo/pango and will not load.
+register(new URL("./canvas-stub-hooks.mjs", import.meta.url).href);
 
 const upstream = process.cwd();
 
@@ -44,10 +50,41 @@ const { build } = (await import(pathToFileURL(viteEntry).href)) as {
 const configs = (await import(
 	pathToFileURL(join(upstream, "vite.configs.ts")).href
 )) as {
-	buildStart: unknown;
-	buildBackground: unknown;
-	buildContent: unknown;
+	buildStart: UpstreamConfig;
+	buildBackground: UpstreamConfig;
+	buildContent: UpstreamConfig;
 };
+
+interface UpstreamConfig {
+	plugins?: unknown[];
+}
+
+/**
+ * Upstream's image pipeline: `generate-icons` renders the icon set from
+ * `src/icons/{main,monochrome}` with native canvas, and `minify-images` needs
+ * the imagemin binaries. Kit Scrobbler ships the Safari artwork from
+ * `src/icons/icon_safari_*.png` instead (see `scripts/assets.ts`), so both
+ * plugins are dropped before building.
+ */
+const SKIPPED_PLUGINS = new Set(["generate-icons", "minify-images"]);
+
+function stripPlugins(config: UpstreamConfig): void {
+	if (!Array.isArray(config.plugins)) {
+		return;
+	}
+	config.plugins = config.plugins.filter((plugin) => {
+		const name = (plugin as { name?: string } | null | undefined)?.name;
+		return !(name && SKIPPED_PLUGINS.has(name));
+	});
+}
+
+for (const config of [
+	configs.buildStart,
+	configs.buildBackground,
+	configs.buildContent,
+]) {
+	stripPlugins(config);
+}
 
 await Promise.all([
 	build(configs.buildStart),
