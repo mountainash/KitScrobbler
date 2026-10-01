@@ -12,6 +12,10 @@
 import type { ManagerTab } from "@upstream/src/core/storage/wrapper";
 import { getBrowser, isExtensionContext } from "./browser";
 
+export type {
+	Scrobbler,
+	ScrobblerLabel,
+} from "@upstream/src/core/object/scrobble-service";
 export type { CloneableSong } from "@upstream/src/core/object/song";
 export type { ModifiedTheme } from "@upstream/src/theme/themes";
 export type { ManagerTab };
@@ -21,6 +25,8 @@ export type UpstreamCommunication =
 export type UpstreamThemes = typeof import("@upstream/src/theme/themes");
 export type UpstreamClonedSong =
 	typeof import("@upstream/src/core/object/cloned-song").default;
+export type UpstreamScrobbleService =
+	typeof import("@upstream/src/core/object/scrobble-service").default;
 
 /** Preview-only stand-in used when there is no extension context. */
 export const PREVIEW_TAB: ManagerTab = {
@@ -64,6 +70,17 @@ export async function upstreamThemes(): Promise<UpstreamThemes | null> {
 		return null;
 	}
 	return import("@upstream/src/theme/themes");
+}
+
+/** Upstream's scrobble service: sessions, auth URLs and sign-out. */
+export async function upstreamScrobbleService(): Promise<UpstreamScrobbleService | null> {
+	if (!isExtensionContext()) {
+		return null;
+	}
+	const { default: scrobbleService } = await import(
+		"@upstream/src/core/object/scrobble-service"
+	);
+	return scrobbleService;
 }
 
 export interface ExtensionInfo {

@@ -27,6 +27,7 @@ export interface BrowserApi {
 			currentWindow?: boolean;
 		}): Promise<{ id?: number }[]>;
 		sendMessage(tabId: number, message: unknown): Promise<unknown>;
+		create(createProperties: { url?: string }): Promise<unknown>;
 	};
 	storage: {
 		local: StorageArea;

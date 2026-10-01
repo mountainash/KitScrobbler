@@ -1,10 +1,13 @@
+import { getBrowser } from "@kit/shared/browser";
 import { el, mount } from "@kit/shared/dom";
 import { ICONS, svgIcon } from "@kit/shared/icons";
 import {
 	applyPreviewTheme,
 	getExtensionInfo,
 	type ModifiedTheme,
+	type Scrobbler,
 	type UpstreamThemes,
+	upstreamScrobbleService,
 	upstreamThemes,
 } from "@kit/shared/upstream";
 
@@ -16,8 +19,10 @@ const SECTIONS: { id: SectionId; label: string; icon: string }[] = [
 	{ id: "about", label: "About", icon: ICONS.info },
 ];
 
-const SERVICES = [
-	"Last.fm",
+const LASTFM_LABEL = "Last.fm";
+
+/** Services Kit Scrobbler does not support yet — shown greyed out. */
+const OTHER_SERVICES = [
 	"Libre.fm",
 	"ListenBrainz",
 	"Maloja",
@@ -43,7 +48,14 @@ const LINKS = [
 	{ label: "Last.fm", href: "https://www.last.fm" },
 ];
 
+type LastFmState =
+	| { status: "checking" }
+	| { status: "signed-out" }
+	| { status: "signed-in"; sessionName: string; profileUrl: string }
+	| { status: "unavailable" };
+
 let section: SectionId = "appearance";
+let lastFm: LastFmState = { status: "checking" };
 
 const themes: UpstreamThemes | null = await upstreamThemes();
 let theme: ModifiedTheme = themes ? await themes.getTheme() : "theme-system";
@@ -54,6 +66,73 @@ if (themes) {
 } else {
 	applyPreviewTheme(theme);
 }
+
+/* Last.fm connection (via upstream's scrobble service) --------------------- */
+
+async function lastFmScrobbler(): Promise<Scrobbler | null> {
+	const service = await upstreamScrobbleService();
+	return service?.getScrobblerByLabel(LASTFM_LABEL) ?? null;
+}
+
+/** Reads the stored session; `getSession()` also trades a pending auth token. */
+async function refreshLastFm(): Promise<void> {
+	const scrobbler = await lastFmScrobbler();
+	if (!scrobbler) {
+		lastFm = { status: "unavailable" };
+		render();
+		return;
+	}
+
+	try {
+		const session = await scrobbler.getSession();
+		lastFm = {
+			status: "signed-in",
+			sessionName: session.sessionName ?? "unknown",
+			profileUrl: await scrobbler.getProfileUrl(),
+		};
+	} catch {
+		lastFm = { status: "signed-out" };
+	}
+	render();
+}
+
+/** Upstream's `getAuthUrl()` stores a token; we just open the approval page. */
+async function connectLastFm(): Promise<void> {
+	const scrobbler = await lastFmScrobbler();
+	const url = await scrobbler?.getAuthUrl();
+	if (!url) {
+		return;
+	}
+	const browser = await getBrowser();
+	await browser?.tabs.create({ url });
+}
+
+async function disconnectLastFm(): Promise<void> {
+	const scrobbler = await lastFmScrobbler();
+	await scrobbler?.signOut();
+	await refreshLastFm();
+}
+
+/**
+ * Safari does not reload the options page when the user returns from Last.fm, so
+ * — like upstream — we re-check on focus and trade the approved token.
+ */
+async function onWindowFocus(): Promise<void> {
+	const scrobbler = await lastFmScrobbler();
+	if (!scrobbler) {
+		return;
+	}
+	try {
+		if (await scrobbler.isReadyForGrantAccess()) {
+			await scrobbler.getSession();
+			await refreshLastFm();
+		}
+	} catch {
+		// The user has not approved access yet.
+	}
+}
+
+/* UI ----------------------------------------------------------------------- */
 
 function sidebar(): HTMLElement {
 	return el(
@@ -108,10 +187,15 @@ function segmented(
 	return group;
 }
 
-function row(label: string, subtitle: string, control: Node): HTMLElement {
+function row(
+	label: string,
+	subtitle: string,
+	control: Node,
+	disabled = false,
+): HTMLElement {
 	return el(
 		"li",
-		{ class: "list-row" },
+		{ class: disabled ? "list-row is-disabled" : "list-row" },
 		el(
 			"div",
 			{ class: "list-row__label" },
@@ -120,6 +204,69 @@ function row(label: string, subtitle: string, control: Node): HTMLElement {
 		),
 		control,
 	);
+}
+
+function connectButton(onClick?: () => void, disabled = false): HTMLElement {
+	return el(
+		"button",
+		{ class: "button button--primary", type: "button", onClick, disabled },
+		"Connect",
+	);
+}
+
+function lastFmRow(): HTMLElement {
+	switch (lastFm.status) {
+		case "checking":
+			return row(
+				LASTFM_LABEL,
+				"Checking…",
+				el("span", { class: "list-row__value" }, "…"),
+			);
+		case "unavailable":
+			return row(
+				LASTFM_LABEL,
+				"Signed in through the Safari extension",
+				connectButton(undefined, true),
+			);
+		case "signed-in":
+			return row(
+				LASTFM_LABEL,
+				`Signed in as ${lastFm.sessionName}`,
+				el(
+					"div",
+					{ class: "row-actions" },
+					el(
+						"a",
+						{
+							class: "button",
+							href: lastFm.profileUrl,
+							target: "_blank",
+							rel: "noreferrer",
+						},
+						"Profile",
+					),
+					el(
+						"button",
+						{
+							class: "button",
+							type: "button",
+							onClick: () => {
+								void disconnectLastFm();
+							},
+						},
+						"Sign out",
+					),
+				),
+			);
+		default:
+			return row(
+				LASTFM_LABEL,
+				"Not connected",
+				connectButton(() => {
+					void connectLastFm();
+				}),
+			);
+	}
 }
 
 function appearanceSection(): HTMLElement {
@@ -166,22 +313,15 @@ function accountsSection(): HTMLElement {
 		el(
 			"ul",
 			{ class: "list" },
-			...SERVICES.map((service) =>
-				row(
-					service,
-					"Not connected",
-					el(
-						"button",
-						{ class: "button button--primary", type: "button", disabled: true },
-						"Connect",
-					),
-				),
+			lastFmRow(),
+			...OTHER_SERVICES.map((service) =>
+				row(service, "Not available yet", connectButton(undefined, true), true),
 			),
 		),
 		el(
 			"p",
 			{ class: "accounts-note" },
-			"Account linking is coming in a later milestone.",
+			"More services are coming in a later milestone.",
 		),
 	);
 }
@@ -235,3 +375,9 @@ function render(): void {
 }
 
 render();
+
+window.addEventListener("focus", () => {
+	void onWindowFocus();
+});
+
+void refreshLastFm();
