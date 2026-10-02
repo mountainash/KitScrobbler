@@ -5,7 +5,7 @@
  * Why not bespoke SVG paths (upstream's approach): Phosphor is a consistent,
  * macOS-friendly set with far more glyphs, and it ships as a webfont — so there
  * is no icon build or minification step, which upstream's pipeline needs native
- * canvas and image tooling (Linux-only) to run.
+ * canvas and image tooling to run.
  *
  * The font files and CSS are copied into the built extension by
  * `scripts/build-ui.ts`; the dev server serves them from `node_modules`.
@@ -24,6 +24,8 @@ export const ICONS = {
 	about: "info",
 	search: "magnifying-glass",
 	heart: "heart",
+	"heart-fill": "heart-fill",
+	link: "link",
 	skip: "skip-forward",
 	edit: "pencil-simple",
 	note: "music-notes",

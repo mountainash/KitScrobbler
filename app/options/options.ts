@@ -16,10 +16,10 @@ import { youtubeSection } from "./youtube";
 type SectionId = "appearance" | "accounts" | "connectors" | "youtube" | "about";
 
 const SECTIONS: { id: SectionId; label: string; icon: IconName }[] = [
-	{ id: "appearance", label: "Appearance", icon: ICONS.appearance },
 	{ id: "accounts", label: "Accounts", icon: ICONS.accounts },
 	{ id: "connectors", label: "Connectors", icon: ICONS.connectors },
 	{ id: "youtube", label: "YouTube", icon: ICONS.youtube },
+	{ id: "appearance", label: "Appearance", icon: ICONS.appearance },
 	{ id: "about", label: "About", icon: ICONS.about },
 ];
 
@@ -42,14 +42,17 @@ const THEMES: { value: ModifiedTheme; label: string }[] = [
 
 const LINKS = [
 	{
-		label: "Kit Scrobbler on GitHub",
-		href: "https://github.com/mountainash/KitScrobbler",
-	},
-	{
-		label: "Web Scrobbler (upstream)",
+		label: "Web Scrobbler",
 		href: "https://github.com/web-scrobbler/web-scrobbler",
 	},
-	{ label: "Last.fm", href: "https://www.last.fm" },
+	{ label: "GitHub", href: "https://github.com/" },
+	{
+		label: "CommandCode (deepseek-v4.1-flash)",
+		href: "https://commandcode.ai/",
+	},
+	{ label: "Sprites", href: "https://sprites.dev/" },
+	{ label: "Bun", href: "https://bun.sh/" },
+	{ label: "Biome", href: "https://biomejs.dev/" },
 	{ label: "Phosphor Icons", href: "https://phosphoricons.com/" },
 ];
 
@@ -59,7 +62,7 @@ type LastFmState =
 	| { status: "signed-in"; sessionName: string; profileUrl: string }
 	| { status: "unavailable" };
 
-let section: SectionId = "appearance";
+let section: SectionId = "about";
 let lastFm: LastFmState = { status: "checking" };
 
 const themes: UpstreamThemes | null = await upstreamThemes();
@@ -199,7 +202,7 @@ interface RowOptions {
 
 function row(
 	label: string,
-	subtitle: string,
+	subtitle: string | null,
 	control: Node,
 	options: RowOptions = {},
 ): HTMLElement {
@@ -213,7 +216,7 @@ function row(
 			"div",
 			{ class: "list-row__label" },
 			el("div", { class: "list-row__title" }, label),
-			el("div", { class: "list-row__subtitle" }, subtitle),
+			subtitle ? el("div", { class: "list-row__subtitle" }, subtitle) : null,
 		),
 		control,
 	);
@@ -348,24 +351,44 @@ function aboutSection(): HTMLElement {
 		"section",
 		{},
 		el("h2", { class: "content__heading" }, "About"),
-		el("p", { class: "content__subtitle" }, `${info.name} ${info.version}`),
+		el("p", { class: "content__subtitle" }, `${info.name}`),
 		el(
 			"ul",
 			{ class: "list" },
 			row(
 				"Version",
-				info.version,
+				null,
 				el("span", { class: "list-row__value" }, info.version),
 			),
-		),
-		el(
-			"div",
-			{ class: "about-links" },
-			...LINKS.map((link) =>
+			row(
+				"Source Code",
+				null,
 				el(
 					"a",
-					{ href: link.href, target: "_blank", rel: "noreferrer" },
+					{
+						class: "list-row__value",
+						href: "https://github.com/mountainash/KitScrobbler",
+						target: "_blank",
+						rel: "noreferrer",
+					},
+					"GitHub",
+				),
+			),
+		),
+		el("h3", { class: "content__heading" }, "Acknowledgements"),
+		el("p", { class: "content__subtitle" }, "Thank you to these projects."),
+		el(
+			"ul",
+			{ class: "list about-links" },
+			...LINKS.map((link) =>
+				row(
 					link.label,
+					null,
+					el(
+						"a",
+						{ href: link.href, target: "_blank", rel: "noreferrer" },
+						icon(ICONS.link, 15),
+					),
 				),
 			),
 		),

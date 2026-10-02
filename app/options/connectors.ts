@@ -154,7 +154,7 @@ export function connectorsSection(): HTMLElement {
 		el(
 			"p",
 			{ class: "content__subtitle" },
-			"Turn sites on or off, and override scrobbling behaviour per site.",
+			"Turn music services on or off, and override scrobbling behaviour per site.",
 		),
 		el(
 			"div",
