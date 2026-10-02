@@ -24,13 +24,13 @@ const ALL_CONNECTORS: ConnectorMeta[] = [...connectors].sort((a, b) =>
  * video first, then the audio services.
  */
 const POPULAR_IDS = [
+	"spotify",
 	"youtube",
 	"youtube-music",
 	"soundcloud",
-	"mixcloud",
-	"spotify",
 	"bandcamp",
 	"tidal",
+	"mixcloud",
 ] as const;
 
 const POPULAR_SET = new Set<string>(POPULAR_IDS);
@@ -163,8 +163,8 @@ export function connectorsSection(): HTMLElement {
 	const search = el("input", {
 		class: "text-field",
 		type: "search",
-		placeholder: "Search connectors",
-		"aria-label": "Search connectors",
+		placeholder: "Filter connectors",
+		"aria-label": "Filter connectors",
 	});
 	search.addEventListener("input", () => {
 		query = search.value;
@@ -180,13 +180,13 @@ export function connectorsSection(): HTMLElement {
 			{ class: "content__subtitle" },
 			"Turn music services on or off, and override scrobbling behaviour per site.",
 		),
+		masterList,
 		el(
 			"div",
 			{ class: "connectors__toolbar" },
 			el("span", { class: "connectors__search-icon" }, icon(ICONS.search, 16)),
 			search,
 		),
-		masterList,
 		groups,
 	);
 

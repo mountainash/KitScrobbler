@@ -13,7 +13,7 @@ import { VERSION } from "@kit/shared/version";
 import { connectorsSection } from "./connectors";
 import { youtubeSection } from "./youtube";
 
-type SectionId = "appearance" | "accounts" | "connectors" | "youtube" | "about";
+type SectionId = "accounts" | "connectors" | "youtube" | "appearance" | "about";
 
 const SECTIONS: { id: SectionId; label: string; icon: IconName }[] = [
 	{ id: "accounts", label: "Accounts", icon: ICONS.accounts },
@@ -22,6 +22,8 @@ const SECTIONS: { id: SectionId; label: string; icon: IconName }[] = [
 	{ id: "appearance", label: "Appearance", icon: ICONS.appearance },
 	{ id: "about", label: "About", icon: ICONS.about },
 ];
+
+let section: SectionId = "accounts";
 
 const LASTFM_LABEL = "Last.fm";
 
@@ -62,7 +64,6 @@ type LastFmState =
 	| { status: "signed-in"; sessionName: string; profileUrl: string }
 	| { status: "unavailable" };
 
-let section: SectionId = "about";
 let lastFm: LastFmState = { status: "checking" };
 
 const themes: UpstreamThemes | null = await upstreamThemes();
@@ -340,7 +341,16 @@ function accountsSection(): HTMLElement {
 		el(
 			"p",
 			{ class: "accounts-note" },
-			"More services are coming in a later milestone.",
+			"Register your interest in adding more services at ",
+			el(
+				"a",
+				{
+					href: "https://github.com/mountainash/KitScrobbler/issues",
+					target: "_blank",
+					rel: "noreferrer",
+				},
+				"GitHub",
+			),
 		),
 	);
 }
