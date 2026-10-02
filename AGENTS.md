@@ -64,7 +64,6 @@ Potential confusion to avoid: upstream's *own* source lives at `src/web-scrobble
 | `bun run build:ui` | Bun.build the popup + options into `build/preview` |
 | `bun run build` | Build the loadable extension into `build/preview` (any OS) |
 | `bun run bundle` | Archive + export the App Store build to `dist/` (macOS + Xcode) |
-| `bun run typecheck` | `tsc --noEmit` |
 | `bun run check` | Biome lint + format check |
 | `bun run fix` | Biome autofix |
 | `bun run guard` | Fail if the submodule has uncommitted tracked changes |

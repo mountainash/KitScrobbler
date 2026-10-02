@@ -1,6 +1,8 @@
 # Kit Scrobbler
 
-> An Apple-first Safari extension for scrobbling music tracks to [Last.fm](https://www.last.fm) and friends.
+![Kit Scrobbler icon](./app/icons/kit-scrobbler-256.png)
+
+> An Apple-first Safari extension for scrobbling music plays to [Last.fm](https://www.last.fm).
 
 ## 💁 About
 
@@ -8,8 +10,7 @@ Kit Scrobbler is narrowly scooped to be the best tool for scrobbling music in **
 It is not a generic cross-platform scrobbler and it does not try to be. Everything here is tuned for
 Apple's browser and Apple's design language.
 
-It is built *around* the [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) codebase —
-its scrobblers, connectors and playback logic — which is vendored as a **read-only git submodule** at
+It is built *around* the [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) codebase — connectors and playback logic — which is vendored as a **read-only git submodule** at
 `src/web-scrobbler/`. Kit Scrobbler contributes its own Bun-powered build pipeline and its own
 Apple-styled UI on top.
 
@@ -18,11 +19,11 @@ must follow).
 
 ## 🗂 Layout
 
-| Path | What it is |
-| :--- | :--- |
-| `app/` | Kit Scrobbler's own source: popup, options, design system |
-| `scripts/` | The Bun build pipeline |
-| `src/web-scrobbler/` | The upstream submodule — **never edit this** |
+```text
+📁 app/                 Kit Scrobbler's own source: popup, options, design system
+📁 scripts/             The Bun build pipeline
+📁 src/web-scrobbler/   Upstream submodule — **never edit this**
+```
 
 ## 🧑‍💻 Local Development
 
@@ -35,7 +36,6 @@ Run these commands from the repository root.
 | `bun run build:ui` | Bundle the popup + options into `build/preview` |
 | `bun run build` | Build the loadable extension into `build/preview` (any OS) |
 | `bun run bundle` | Archive + export the App Store build to `dist/` (macOS + Xcode) |
-| `bun run typecheck` | Type-check with `tsc` |
 | `bun run check` | Lint + format check with Biome |
 | `bun run fix` | Biome autofix |
 | `bun run guard` | Verify the upstream submodule has not been modified |
