@@ -17,6 +17,7 @@ interface SongOptions {
 	loved?: boolean;
 	playCount?: number;
 	connector?: string;
+	connectorId?: string;
 }
 
 /**
@@ -34,7 +35,10 @@ function song(options: SongOptions): PopupSong {
 			userloved: options.loved ?? false,
 			userPlayCount: options.playCount ?? 0,
 		},
-		connector: { label: options.connector ?? "Bandcamp" },
+		connector: {
+			id: options.connectorId ?? "bandcamp",
+			label: options.connector ?? "Bandcamp",
+		},
 	};
 }
 
@@ -67,6 +71,7 @@ const long = song({
 	art: ART_PINK,
 	playCount: 90210,
 	connector: "YouTube Music",
+	connectorId: "youtube-music",
 });
 
 export const DEV_STATES: DevState[] = [

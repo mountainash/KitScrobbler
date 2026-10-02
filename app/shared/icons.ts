@@ -55,6 +55,33 @@ export const SERVICE_ICONS: Record<string, IconName> = {
 };
 
 /**
+ * A Phosphor glyph per connector, keyed by upstream's connector id.
+ *
+ * Phosphor carries a lot of brand logos but not every service, and several
+ * connectors are variants of one (Bandcamp's daily and embed pages), so ids that
+ * share a service share a glyph.
+ */
+export const CONNECTOR_ICONS: Record<string, IconName> = {
+	youtube: "youtube-logo",
+	"youtube-music": "youtube-logo",
+	soundcloud: "soundcloud-logo",
+	spotify: "spotify-logo",
+	tidal: "tidal-logo",
+	amazon: "amazon-logo",
+	"amazon-alexa": "amazon-logo",
+	"apple-music": "apple-logo",
+	// Phosphor has no Bandcamp logo, so the project's stand-in is a shape.
+	bandcamp: "parallelogram",
+	"bandcamp-daily": "parallelogram",
+	"bandcamp-embed": "parallelogram",
+};
+
+/** The glyph for a connector, falling back to the generic music note. */
+export function connectorIcon(id: string | undefined): IconName {
+	return (id ? CONNECTOR_ICONS[id] : undefined) ?? ICONS.note;
+}
+
+/**
  * Builds a Phosphor icon. The glyph is sized by `font-size`, and inherits the
  * surrounding `color`.
  */

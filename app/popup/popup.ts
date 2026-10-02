@@ -4,7 +4,7 @@ import {
 	openOptionsPage,
 } from "@kit/shared/browser";
 import { el, mount } from "@kit/shared/dom";
-import { ICONS, icon } from "@kit/shared/icons";
+import { connectorIcon, ICONS, icon } from "@kit/shared/icons";
 import {
 	applyPreviewTheme,
 	getCurrentTab,
@@ -35,7 +35,7 @@ export interface PopupSong {
 	getAlbumArtist(): string | null | undefined;
 	getTrackArt(): string | null;
 	metadata: { userloved?: boolean; userPlayCount?: number };
-	connector: { label: string };
+	connector: { id?: string; label: string };
 }
 
 function header(): HTMLElement {
@@ -117,6 +117,18 @@ function loveButton(loved: boolean, onToggle: () => void): HTMLElement {
 	return node;
 }
 
+/** The playing connector's glyph, then its name. */
+function connectorLabel(
+	connector: PopupSong["connector"] | undefined,
+): HTMLElement {
+	return el(
+		"span",
+		{ class: "now-playing__connector" },
+		icon(connectorIcon(connector?.id), 12),
+		connector?.label ?? "Unknown",
+	);
+}
+
 function nowPlaying(
 	tab: ManagerTab,
 	song: PopupSong | null,
@@ -152,11 +164,7 @@ function nowPlaying(
 			el(
 				"div",
 				{ class: "now-playing__meta" },
-				el(
-					"span",
-					{ class: "now-playing__connector" },
-					song?.connector.label ?? "Unknown",
-				),
+				connectorLabel(song?.connector),
 				el("span", { class: "toolbar__spacer" }),
 				el(
 					"span",
