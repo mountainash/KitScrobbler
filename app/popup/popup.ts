@@ -52,6 +52,7 @@ function header(): HTMLElement {
 				class: "popup__settings",
 				href: optionsUrl,
 				title: "Settings",
+				tabIndex: 10,
 				"aria-label": "Settings",
 				// A plain anchor does not open from a popup, so we prevent the
 				// default and ask the browser for the options page — upstream's
@@ -93,6 +94,7 @@ function loveButton(loved: boolean, onToggle: () => void): HTMLElement {
 		"button",
 		{
 			class: loved ? "icon-button is-active" : "icon-button",
+			tabIndex: 0,
 			type: "button",
 			title: "Love",
 			"aria-label": "Love",
@@ -102,9 +104,9 @@ function loveButton(loved: boolean, onToggle: () => void): HTMLElement {
 					glyph.addEventListener(
 						"animationend",
 						() => {
+							glyph.classList.replace("ph", "ph-fill");
 							node.classList.remove("is-loving");
 							node.classList.add("is-active");
-							glyph.classList.replace("ph", "ph-fill");
 						},
 						{ once: true },
 					);

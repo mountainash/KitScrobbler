@@ -1,3 +1,8 @@
+:root {
+	--bg-page: light-dark(#f2f2f77c, #1c1c1e74);
+	--bg-panel: light-dark(#ffffff90, #2c2c2e83);
+}
+
 body {
 	width: 320px;
 }
@@ -176,9 +181,10 @@ body {
 			color: var(--love);
 		}
 
-		/* Plays once, as the heart is filled in. */
+		/* Plays once, as the heart is filled in */
 		&.is-loving .ph {
-			animation: love-shake 420ms ease-in-out 1;
+			color: var(--love);
+			animation: love-shake 320ms ease-in-out 1;
 		}
 	}
 }
