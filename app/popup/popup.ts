@@ -1,7 +1,7 @@
 import {
 	extensionUrl,
 	isExtensionContext,
-	openInNewTab,
+	openOptionsPage,
 } from "@kit/shared/browser";
 import { el, mount } from "@kit/shared/dom";
 import { ICONS, icon } from "@kit/shared/icons";
@@ -54,10 +54,11 @@ function header(): HTMLElement {
 				title: "Settings",
 				"aria-label": "Settings",
 				// A plain anchor does not open from a popup, so we prevent the
-				// default and create the tab — upstream's PopupAnchor does the same.
+				// default and ask the browser for the options page — upstream's
+				// PopupAnchor creates a tab for the same reason.
 				onClick: (event) => {
 					event.preventDefault();
-					void openInNewTab(optionsUrl);
+					void openOptionsPage(optionsUrl);
 				},
 			},
 			icon(ICONS.settings, 16),
@@ -68,17 +69,51 @@ function header(): HTMLElement {
 function iconButton(
 	label: string,
 	name: string,
-	active: boolean,
 	onClick: () => void,
 ): HTMLElement {
 	const node = el("button", {
-		class: active ? "icon-button is-active" : "icon-button",
+		class: "icon-button",
 		type: "button",
 		title: label,
 		"aria-label": label,
 		onClick,
 	});
 	node.append(icon(name, 16));
+	return node;
+}
+
+/**
+ * The love toggle. Loving shakes the heart and, as the shake lands, fills it in
+ * the brand red — upstream re-renders the popup shortly after, which keeps the
+ * filled heart from the saved state.
+ */
+function loveButton(loved: boolean, onToggle: () => void): HTMLElement {
+	const glyph = icon(ICONS.heart, 16, loved ? "fill" : "regular");
+	const node = el(
+		"button",
+		{
+			class: loved ? "icon-button is-active" : "icon-button",
+			type: "button",
+			title: "Love",
+			"aria-label": "Love",
+			onClick: () => {
+				if (!loved) {
+					node.classList.add("is-loving");
+					glyph.addEventListener(
+						"animationend",
+						() => {
+							node.classList.remove("is-loving");
+							node.classList.add("is-active");
+							glyph.classList.replace("ph", "ph-fill");
+						},
+						{ once: true },
+					);
+				}
+				onToggle();
+			},
+		},
+		glyph,
+	);
 	return node;
 }
 
@@ -123,13 +158,18 @@ function nowPlaying(
 					song?.connector.label ?? "Unknown",
 				),
 				el("span", { class: "toolbar__spacer" }),
-				el("span", {}, `${song?.metadata.userPlayCount ?? 0} scrobbles`),
+				el(
+					"span",
+					{ class: "now-playing__scrobbles" },
+					`${song?.metadata.userPlayCount ?? 0}`,
+					icon(ICONS.scrobbles, 12),
+				),
 			),
 		),
 		el(
 			"div",
 			{ class: "now-playing__controls" },
-			iconButton("Love", ICONS.heart, Boolean(song?.metadata.userloved), () => {
+			loveButton(Boolean(song?.metadata.userloved), () => {
 				void comm?.sendBackgroundMessage(tab.tabId, {
 					type: "toggleLove",
 					payload: {
@@ -138,13 +178,13 @@ function nowPlaying(
 					},
 				});
 			}),
-			iconButton("Skip", ICONS.skip, false, () => {
+			iconButton("Skip", ICONS.skip, () => {
 				void comm?.sendBackgroundMessage(tab.tabId, {
 					type: "skipCurrentSong",
 					payload: undefined,
 				});
 			}),
-			iconButton("Edit", ICONS.edit, false, () => {
+			iconButton("Edit", ICONS.edit, () => {
 				beginEditing();
 			}),
 		),
@@ -172,7 +212,7 @@ function disabledView(
 	comm: UpstreamCommunication | null,
 ): HTMLElement {
 	return stateView(
-		ICONS.info,
+		ICONS.disabled,
 		"Scrobbling disabled",
 		"Kit Scrobbler is turned off for this site.",
 		el(
@@ -206,7 +246,7 @@ function body(
 	switch (tab.mode) {
 		case ControllerMode.Unsupported:
 			return stateView(
-				ICONS.info,
+				ICONS.unsupported,
 				"Not supported yet",
 				"Kit Scrobbler does not recognise this website.",
 			);

@@ -1,5 +1,5 @@
 import { el } from "@kit/shared/dom";
-import { ICONS, icon } from "@kit/shared/icons";
+import { ICONS, type IconName, icon } from "@kit/shared/icons";
 import type { SavedEdit } from "@upstream/src/core/storage/options";
 import type { PopupSong } from "./popup";
 
@@ -8,20 +8,24 @@ interface Field {
 	input: HTMLInputElement;
 }
 
-function field(label: string, value: string): Field {
+/**
+ * One metadata field: a glyph, the value, and the label kept for screen readers
+ * only, so each row is a single control tall.
+ */
+function field(iconName: IconName, label: string, value: string): Field {
 	const input = el("input", {
 		class: "text-field",
 		type: "text",
 		value,
 		placeholder: label,
-		"aria-label": label,
 	});
 
 	return {
 		node: el(
 			"label",
-			{ class: "edit__field" },
-			el("span", { class: "edit__label" }, label),
+			{ class: "input-group" },
+			icon(iconName, 14),
+			el("span", { class: "sr-only" }, label),
 			input,
 		),
 		input,
@@ -37,15 +41,15 @@ export interface EditViewOptions {
 }
 
 /**
- * Metadata editor, mirroring upstream's `edit.tsx`: correct the track data,
- * save it (upstream stores it by song id and reprocesses the song) or swap
- * artist and track.
+ * Metadata editor, mirroring upstream's `edit.tsx`: correct the track data and
+ * save it (upstream stores it by song id and reprocesses the song).
  */
 export function editView(options: EditViewOptions): HTMLElement {
-	const track = field("Track", options.song.getTrack() ?? "");
-	const artist = field("Artist", options.song.getArtist() ?? "");
-	const album = field("Album", options.song.getAlbum() ?? "");
+	const track = field(ICONS.track, "Track", options.song.getTrack() ?? "");
+	const artist = field(ICONS.artist, "Artist", options.song.getArtist() ?? "");
+	const album = field(ICONS.album, "Album", options.song.getAlbum() ?? "");
 	const albumArtist = field(
+		ICONS.albumArtist,
 		"Album artist",
 		options.song.getAlbumArtist() ?? "",
 	);
@@ -71,30 +75,10 @@ export function editView(options: EditViewOptions): HTMLElement {
 		},
 		icon(ICONS.check, 16),
 	);
-	const swap = el(
-		"button",
-		{
-			class: "button",
-			type: "button",
-			disabled: !valid(),
-			title: "Swap artist and track",
-			"aria-label": "Swap artist and track",
-			onClick: () => {
-				const data = read();
-				options.onSave({
-					...data,
-					artist: data.track,
-					track: data.artist,
-				});
-			},
-		},
-		icon(ICONS.swap, 16),
-	);
 
 	for (const target of [track, artist]) {
 		target.input.addEventListener("input", () => {
 			save.disabled = !valid();
-			swap.disabled = !valid();
 		});
 	}
 
@@ -113,7 +97,7 @@ export function editView(options: EditViewOptions): HTMLElement {
 				? el(
 						"button",
 						{
-							class: "button button--plain",
+							class: "button button--plain button--small",
 							type: "button",
 							onClick: () => options.onCancel(),
 						},
@@ -121,7 +105,6 @@ export function editView(options: EditViewOptions): HTMLElement {
 					)
 				: null,
 			el("span", { class: "toolbar__spacer" }),
-			swap,
 			save,
 		),
 	);

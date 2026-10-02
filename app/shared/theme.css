@@ -54,9 +54,10 @@
 	--segmented-track: light-dark(rgba(120, 120, 128, 0.08), rgba(0, 0, 0, 0.5));
 	--control-selected-bg: light-dark(#ffffff, #636366);
 
-	--accent: auto;
+	--accent: AccentColor;
 	--accent-contrast: AccentColorText;
 	--danger: light-dark(#d70015, #ff453a);
+	--love: #ff4d4f;
 	--success: light-dark(#248a3d, #30d158);
 
 	--shadow-popover:

@@ -8,11 +8,17 @@
  * canvas and image tooling to run.
  *
  * The font files and CSS are copied into the built extension by
- * `scripts/build-ui.ts`; the dev server serves them from `node_modules`.
+ * `scripts/build-ui.ts`; the dev server streams them from `app/vendor/phosphor`.
  */
 
 /** Phosphor glyph name, without the `ph-` prefix. */
 export type IconName = string;
+
+/**
+ * Phosphor ships each weight as its own font: `regular` is the outline set, and
+ * `fill` draws the same glyphs solid.
+ */
+export type IconWeight = "regular" | "fill";
 
 /** Semantic names for the icons Kit Scrobbler uses. */
 export const ICONS = {
@@ -24,14 +30,18 @@ export const ICONS = {
 	about: "info",
 	search: "magnifying-glass",
 	heart: "heart",
-	"heart-fill": "heart-fill",
 	link: "link",
-	skip: "skip-forward",
+	skip: "prohibit-inset",
 	edit: "pencil-simple",
 	note: "music-notes",
-	info: "info",
+	scrobbles: "lastfm-logo",
+	unsupported: "cloud-slash",
+	disabled: "waveform-slash",
 	check: "check",
-	swap: "swap",
+	track: "music-note",
+	artist: "user",
+	album: "vinyl-record",
+	albumArtist: "users",
 } as const;
 
 /** A Phosphor glyph per scrobbling service. */
@@ -48,9 +58,13 @@ export const SERVICE_ICONS: Record<string, IconName> = {
  * Builds a Phosphor icon. The glyph is sized by `font-size`, and inherits the
  * surrounding `color`.
  */
-export function icon(name: IconName, size = 16): HTMLElement {
+export function icon(
+	name: IconName,
+	size = 16,
+	weight: IconWeight = "regular",
+): HTMLElement {
 	const node = document.createElement("i");
-	node.className = `ph ph-${name}`;
+	node.className = `${weight === "fill" ? "ph-fill" : "ph"} ph-${name}`;
 	node.setAttribute("aria-hidden", "true");
 	node.style.fontSize = `${size}px`;
 	return node;

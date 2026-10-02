@@ -136,6 +136,12 @@ body {
 		color: var(--text-secondary);
 		font-size: 12px;
 	}
+
+	.now-playing__scrobbles {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-1);
+	}
 }
 
 .now-playing__controls {
@@ -161,8 +167,35 @@ body {
 		}
 
 		&.is-active {
-			color: var(--danger);
+			color: var(--love);
 		}
+
+		/* Plays once, as the heart is filled in. */
+		&.is-loving .ph {
+			animation: love-shake 420ms ease-in-out 1;
+		}
+	}
+}
+
+@keyframes love-shake {
+	0% {
+		transform: scale(1) rotate(0deg);
+	}
+
+	30% {
+		transform: scale(1.25) rotate(9deg);
+	}
+
+	55% {
+		transform: scale(1.25) rotate(-9deg);
+	}
+
+	80% {
+		transform: scale(1.15) rotate(4deg);
+	}
+
+	100% {
+		transform: scale(1) rotate(0deg);
 	}
 }
 
@@ -177,17 +210,6 @@ body {
 		margin: 0;
 		font-size: 13px;
 		font-weight: 600;
-	}
-
-	.edit__field {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-
-		.edit__label {
-			font-size: 11px;
-			color: var(--text-secondary);
-		}
 	}
 
 	.edit__controls {
