@@ -85,7 +85,6 @@ export function editView(options: EditViewOptions): HTMLElement {
 	const view = el(
 		"section",
 		{ class: "edit" },
-		el("h2", { class: "edit__title" }, "Edit track"),
 		track.node,
 		artist.node,
 		album.node,

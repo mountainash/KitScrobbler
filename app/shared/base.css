@@ -176,6 +176,19 @@ select {
 	background: var(--bg-raised);
 	color: var(--text-tertiary);
 
+	/*
+	 * Focus reads on this border rather than the field's own ring. Safari tints
+	 * this with the system accent; engines that do not know that value keep the
+	 * text colour, so focus is never invisible.
+	 */
+	&:focus-within {
+		border-color: var(--text-primary);
+
+		@supports (border-color: -webkit-focus-ring-color) {
+			border-color: -webkit-focus-ring-color;
+		}
+	}
+
 	> .ph {
 		flex: none;
 	}
@@ -186,6 +199,10 @@ select {
 		padding: 3px 0;
 		border: 0;
 		background: none;
+
+		&:focus-visible {
+			outline: none;
+		}
 	}
 }
 
