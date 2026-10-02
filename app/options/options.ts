@@ -3,13 +3,13 @@ import { el, mount } from "@kit/shared/dom";
 import { ICONS, type IconName, icon, SERVICE_ICONS } from "@kit/shared/icons";
 import {
 	applyPreviewTheme,
-	getExtensionInfo,
 	type ModifiedTheme,
 	type Scrobbler,
 	type UpstreamThemes,
 	upstreamScrobbleService,
 	upstreamThemes,
 } from "@kit/shared/upstream";
+import { VERSION } from "@kit/shared/version";
 import { connectorsSection } from "./connectors";
 import { youtubeSection } from "./youtube";
 
@@ -67,7 +67,6 @@ let lastFm: LastFmState = { status: "checking" };
 
 const themes: UpstreamThemes | null = await upstreamThemes();
 let theme: ModifiedTheme = themes ? await themes.getTheme() : "theme-system";
-const info = await getExtensionInfo();
 
 if (themes) {
 	await themes.initializeThemes();
@@ -351,15 +350,11 @@ function aboutSection(): HTMLElement {
 		"section",
 		{},
 		el("h2", { class: "content__heading" }, "About"),
-		el("p", { class: "content__subtitle" }, `${info.name}`),
+		el("p", { class: "content__subtitle" }, "Kit Scrobbler"),
 		el(
 			"ul",
 			{ class: "list" },
-			row(
-				"Version",
-				null,
-				el("span", { class: "list-row__value" }, info.version),
-			),
+			row("Version", null, el("span", { class: "list-row__value" }, VERSION)),
 			row(
 				"Source Code",
 				null,

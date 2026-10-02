@@ -17,7 +17,7 @@ import type {
 	GlobalOptions,
 } from "@upstream/src/core/storage/options";
 import type { ManagerTab } from "@upstream/src/core/storage/wrapper";
-import { getBrowser, isExtensionContext } from "./browser";
+import { isExtensionContext } from "./browser";
 
 export type {
 	Scrobbler,
@@ -161,23 +161,6 @@ export async function upstreamOptions(): Promise<UpstreamOptions | null> {
 			options.setConnectorOverrideOption(connectorId, key, value),
 		setConnectorOption: (connector, key, value) =>
 			options.setConnectorOption(connector, key, value),
-	};
-}
-
-export interface ExtensionInfo {
-	name: string;
-	version: string;
-}
-
-export async function getExtensionInfo(): Promise<ExtensionInfo> {
-	const browser = await getBrowser();
-	if (!browser) {
-		return { name: "Kit Scrobbler", version: "dev" };
-	}
-	const manifest = browser.runtime.getManifest();
-	return {
-		name: manifest.name ?? "Kit Scrobbler",
-		version: manifest.version ?? "0",
 	};
 }
 
