@@ -57,28 +57,34 @@ export const SERVICE_ICONS: Record<string, IconName> = {
 /**
  * A Phosphor glyph per connector, keyed by upstream's connector id.
  *
- * Phosphor carries a lot of brand logos but not every service, and several
- * connectors are variants of one (Bandcamp's daily and embed pages), so ids that
- * share a service share a glyph.
+ * Every entry was matched against the vendored stylesheet rather than guessed —
+ * Phosphor carries artwork for only a handful of these services. Variants of one
+ * service share its glyph, and ids with no artwork are absent so that the
+ * connector is shown by name alone.
  */
 export const CONNECTOR_ICONS: Record<string, IconName> = {
 	youtube: "youtube-logo",
+	"youtube-embed": "youtube-logo",
 	"youtube-music": "youtube-logo",
 	soundcloud: "soundcloud-logo",
 	spotify: "spotify-logo",
+	"spotify-embed": "spotify-logo",
 	tidal: "tidal-logo",
 	amazon: "amazon-logo",
 	"amazon-alexa": "amazon-logo",
 	"apple-music": "apple-logo",
-	// Phosphor has no Bandcamp logo, so the project's stand-in is a shape.
+	"telegram-a": "telegram-logo",
+	"telegram-k": "telegram-logo",
+	archive: "archive",
+	// Phosphor carries no Bandcamp artwork, so the project's stand-in is a shape.
 	bandcamp: "parallelogram",
 	"bandcamp-daily": "parallelogram",
 	"bandcamp-embed": "parallelogram",
 };
 
-/** The glyph for a connector, falling back to the generic music note. */
-export function connectorIcon(id: string | undefined): IconName {
-	return (id ? CONNECTOR_ICONS[id] : undefined) ?? ICONS.note;
+/** The glyph for a connector, or `undefined` when Phosphor has none for it. */
+export function connectorIcon(id: string | undefined): IconName | undefined {
+	return id ? CONNECTOR_ICONS[id] : undefined;
 }
 
 /**

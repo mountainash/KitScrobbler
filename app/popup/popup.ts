@@ -117,14 +117,15 @@ function loveButton(loved: boolean, onToggle: () => void): HTMLElement {
 	return node;
 }
 
-/** The playing connector's glyph, then its name. */
+/** The playing connector's name, preceded by its glyph where Phosphor has one. */
 function connectorLabel(
 	connector: PopupSong["connector"] | undefined,
 ): HTMLElement {
+	const glyph = connectorIcon(connector?.id);
 	return el(
 		"span",
 		{ class: "now-playing__connector" },
-		icon(connectorIcon(connector?.id), 12),
+		glyph ? icon(glyph, 12) : null,
 		connector?.label ?? "Unknown",
 	);
 }
