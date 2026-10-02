@@ -1,5 +1,5 @@
 import { getBrowser } from "@kit/shared/browser";
-import { el, mount } from "@kit/shared/dom";
+import { el, mount, segmentedControl } from "@kit/shared/dom";
 import { ICONS, type IconName, icon, SERVICE_ICONS } from "@kit/shared/icons";
 import {
 	applyPreviewTheme,
@@ -170,31 +170,6 @@ function sidebar(): HTMLElement {
 	);
 }
 
-function segmented(
-	options: { value: ModifiedTheme; label: string }[],
-	current: ModifiedTheme,
-	onSelect: (value: ModifiedTheme) => void,
-): HTMLElement {
-	const group = el("div", { class: "segmented", role: "tablist" });
-
-	for (const option of options) {
-		const item = el(
-			"button",
-			{
-				class: "segmented__item",
-				type: "button",
-				role: "tab",
-				"aria-selected": option.value === current ? "true" : "false",
-			},
-			option.label,
-		);
-		item.addEventListener("click", () => onSelect(option.value));
-		group.append(item);
-	}
-
-	return group;
-}
-
 interface RowOptions {
 	disabled?: boolean;
 	icon?: IconName;
@@ -303,15 +278,20 @@ function appearanceSection(): HTMLElement {
 			row(
 				"Theme",
 				"Theme is shared with Web Scrobbler.",
-				segmented(THEMES, theme, (value) => {
-					theme = value;
-					if (themes) {
-						void themes.updateTheme(value);
-					} else {
-						applyPreviewTheme(value);
-					}
-					render();
-				}),
+				segmentedControl(
+					THEMES,
+					theme,
+					(value) => {
+						theme = value;
+						if (themes) {
+							void themes.updateTheme(value);
+						} else {
+							applyPreviewTheme(value);
+						}
+						render();
+					},
+					"Theme",
+				),
 			),
 		),
 	);

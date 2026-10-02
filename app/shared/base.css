@@ -163,7 +163,7 @@ select {
 	display: inline-flex;
 	padding: 2px;
 	gap: 2px;
-	background: var(--fill-tertiary);
+	background: var(--segmented-track);
 	border-radius: var(--radius-sm);
 
 	.segmented__item {
@@ -174,8 +174,8 @@ select {
 		border-radius: 5px;
 		cursor: default;
 
-		&[aria-selected="true"] {
-			background: var(--bg-raised);
+		&[aria-checked="true"] {
+			background: var(--control-selected-bg);
 			box-shadow: var(--shadow-control);
 		}
 	}

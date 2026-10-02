@@ -1,4 +1,4 @@
-import { el, mount } from "@kit/shared/dom";
+import { el, mount, segmentedControl } from "@kit/shared/dom";
 import { applyPreviewTheme } from "@kit/shared/upstream";
 import { DEV_STATES, type DevState } from "./dev-states";
 
@@ -10,9 +10,14 @@ import { DEV_STATES, type DevState } from "./dev-states";
 const params = new URLSearchParams(location.search);
 let theme = params.get("theme") ?? "theme-system";
 
+const THEMES = [
+	{ value: "theme-system", label: "System" },
+	{ value: "theme-light", label: "Light" },
+	{ value: "theme-dark", label: "Dark" },
+];
+
 const grid = document.querySelector<HTMLElement>("#grid");
-const themeButtons =
-	document.querySelectorAll<HTMLButtonElement>("[data-theme]");
+const themeSlot = document.querySelector<HTMLElement>("#theme");
 
 function cell(state: DevState): HTMLElement {
 	const frame = el("iframe", {
@@ -42,19 +47,20 @@ function render(): void {
 	applyPreviewTheme(theme);
 	mount(grid, ...DEV_STATES.map(cell));
 
-	for (const button of themeButtons) {
-		button.setAttribute(
-			"aria-selected",
-			button.dataset.theme === theme ? "true" : "false",
+	if (themeSlot) {
+		mount(
+			themeSlot,
+			segmentedControl(
+				THEMES,
+				theme,
+				(value) => {
+					theme = value;
+					render();
+				},
+				"Theme",
+			),
 		);
 	}
-}
-
-for (const button of themeButtons) {
-	button.addEventListener("click", () => {
-		theme = button.dataset.theme ?? "theme-system";
-		render();
-	});
 }
 
 document.querySelector("#reload")?.addEventListener("click", () => {

@@ -50,6 +50,10 @@
 		rgba(120, 120, 128, 0.16)
 	);
 
+	/* The selected segment needs to stand well clear of its track in dark mode. */
+	--segmented-track: light-dark(rgba(120, 120, 128, 0.08), rgba(0, 0, 0, 0.5));
+	--control-selected-bg: light-dark(#ffffff, #636366);
+
 	--accent: auto;
 	--accent-contrast: AccentColorText;
 	--danger: light-dark(#d70015, #ff453a);

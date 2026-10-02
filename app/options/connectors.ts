@@ -1,5 +1,5 @@
 import { connectorMatches } from "@kit/shared/connector-matches";
-import { el, mount, switchControl } from "@kit/shared/dom";
+import { el, mount, segmentedControl, switchControl } from "@kit/shared/dom";
 import { ICONS, icon } from "@kit/shared/icons";
 import {
 	type OverrideKey,
@@ -124,21 +124,25 @@ function select(
 	return node;
 }
 
-/** Tri-state override: "default" inherits the global setting. */
-function overrideSelect(
+type OverrideChoice = "default" | "on" | "off";
+
+/** Tri-state override: "Default" inherits the global setting. */
+const OVERRIDE_CHOICES: { value: OverrideChoice; label: string }[] = [
+	{ value: "default", label: "Default" },
+	{ value: "on", label: "On" },
+	{ value: "off", label: "Off" },
+];
+
+function overrideControl(
 	label: string,
 	value: boolean | undefined,
 	onChange: (value: boolean | undefined) => void,
-): HTMLSelectElement {
-	return select(
-		label,
-		[
-			{ value: "default", label: "Default" },
-			{ value: "on", label: "On" },
-			{ value: "off", label: "Off" },
-		],
+): HTMLElement {
+	return segmentedControl(
+		OVERRIDE_CHOICES,
 		value === undefined ? "default" : value ? "on" : "off",
 		(next) => onChange(next === "default" ? undefined : next === "on"),
+		label,
 	);
 }
 
@@ -304,7 +308,7 @@ export function connectorsSection(): HTMLElement {
 				row(
 					toggle.label,
 					toggle.hint,
-					overrideSelect(toggle.label, override[toggle.key], (value) =>
+					overrideControl(toggle.label, override[toggle.key], (value) =>
 						setOverride(connector, toggle.key, value),
 					),
 				),

@@ -72,3 +72,104 @@ export function switchControl(
 
 	return input;
 }
+
+export interface SegmentedOption<T extends string> {
+	value: T;
+	label: string;
+}
+
+/**
+ * A segmented control for a small set of mutually exclusive values.
+ *
+ * Keyboard accessible following the WAI-ARIA radio group pattern: the group is a
+ * single tab stop (roving `tabindex`), the arrow keys move and select, and
+ * Home/End jump to the ends. Selection is applied to the DOM here, so callers do
+ * not have to re-render.
+ *
+ * @param label - Accessible name for the group.
+ */
+export function segmentedControl<T extends string>(
+	options: SegmentedOption<T>[],
+	current: T,
+	onSelect: (value: T) => void,
+	label?: string,
+): HTMLElement {
+	const group = el("div", {
+		class: "segmented",
+		role: "radiogroup",
+		"aria-label": label,
+	});
+
+	// Fall back to the first option if `current` is not one of them, so the group
+	// always has exactly one tab stop.
+	let selected = Math.max(
+		0,
+		options.findIndex((option) => option.value === current),
+	);
+
+	const items = options.map((option, index) => {
+		const item = el(
+			"button",
+			{
+				class: "segmented__item",
+				type: "button",
+				role: "radio",
+				tabindex: index === selected ? "0" : "-1",
+			},
+			option.label,
+		);
+		item.addEventListener("click", () => select(index));
+		group.append(item);
+		return item;
+	});
+
+	function select(index: number): void {
+		selected = index;
+		items.forEach((item, itemIndex) => {
+			item.setAttribute("aria-checked", itemIndex === index ? "true" : "false");
+			item.tabIndex = itemIndex === index ? 0 : -1;
+		});
+		items[index]?.focus();
+		onSelect(options[index].value);
+	}
+
+	function move(step: number): void {
+		select(Math.min(items.length - 1, Math.max(0, selected + step)));
+	}
+
+	group.addEventListener("keydown", (event) => {
+		if (!(event instanceof KeyboardEvent)) {
+			return;
+		}
+
+		switch (event.key) {
+			case "ArrowRight":
+			case "ArrowDown":
+				event.preventDefault();
+				move(1);
+				break;
+			case "ArrowLeft":
+			case "ArrowUp":
+				event.preventDefault();
+				move(-1);
+				break;
+			case "Home":
+				event.preventDefault();
+				select(0);
+				break;
+			case "End":
+				event.preventDefault();
+				select(items.length - 1);
+				break;
+			default:
+				break;
+		}
+	});
+
+	// Reflect the initial selection.
+	items.forEach((item, index) => {
+		item.setAttribute("aria-checked", index === selected ? "true" : "false");
+	});
+
+	return group;
+}
