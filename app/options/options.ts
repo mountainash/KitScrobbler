@@ -146,16 +146,7 @@ function sidebar(): HTMLElement {
 	return el(
 		"aside",
 		{ class: "sidebar" },
-		el(
-			"h1",
-			{ class: "sidebar__title" },
-			el("img", {
-				class: "sidebar__logo",
-				src: extensionUrl("icons/kit-scrobbler.svg"),
-				alt: "",
-			}),
-			"Kit Scrobbler",
-		),
+		el("h1", { class: "sidebar__title" }, "Kit Scrobbler"),
 		el(
 			"nav",
 			{ class: "sidebar__nav" },
@@ -348,8 +339,15 @@ function aboutSection(): HTMLElement {
 	return el(
 		"section",
 		{},
-		el("h2", { class: "content__heading" }, "About"),
-		el("p", { class: "content__subtitle" }, "Kit Scrobbler"),
+		el(
+			"div",
+			{ class: "content__logo" },
+			el("img", {
+				src: extensionUrl("icons/kit-scrobbler.svg"),
+				alt: "",
+			}),
+			el("h2", { class: "content__heading" }, "Kit Scrobbler"),
+		),
 		el(
 			"ul",
 			{ class: "list" },
