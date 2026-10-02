@@ -107,11 +107,20 @@
 
 .connector__summary {
 	cursor: default;
-	list-style: none;
+}
 
-	&::-webkit-details-marker {
-		display: none;
-	}
+.connector__disclosure {
+	display: flex;
+	align-items: center;
+	flex: 1;
+	min-width: 0;
+	gap: var(--space-3);
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	text-align: left;
+	cursor: default;
 }
 
 .connector__chevron {
@@ -120,7 +129,7 @@
 	transition: transform 0.15s ease;
 }
 
-.connector[open] .connector__chevron {
+.connector__disclosure[aria-expanded="true"] .connector__chevron {
 	transform: rotate(90deg);
 }
 
@@ -129,6 +138,11 @@
 	flex-direction: column;
 	gap: var(--space-2);
 	padding: 0 var(--space-4) var(--space-4);
+}
+
+/* `display: flex` above would otherwise beat the `hidden` attribute. */
+.connector__body[hidden] {
+	display: none;
 }
 
 .connector__group-title {

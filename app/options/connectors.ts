@@ -20,6 +20,30 @@ const ALL_CONNECTORS: ConnectorMeta[] = [...connectors].sort((a, b) =>
 );
 
 /**
+ * Services worth surfacing above the alphabetical list. The order is deliberate:
+ * video first, then the audio services.
+ */
+const POPULAR_IDS = [
+	"youtube",
+	"youtube-music",
+	"soundcloud",
+	"mixcloud",
+	"spotify",
+	"bandcamp",
+	"tidal",
+] as const;
+
+const POPULAR_SET = new Set<string>(POPULAR_IDS);
+
+const POPULAR_CONNECTORS = POPULAR_IDS.map((id) =>
+	ALL_CONNECTORS.find((connector) => connector.id === id),
+).filter((connector): connector is ConnectorMeta => connector !== undefined);
+
+const OTHER_CONNECTORS = ALL_CONNECTORS.filter(
+	(connector) => !POPULAR_SET.has(connector.id),
+);
+
+/**
  * Which connectors the narrowed manifest can actually run. `connectorMatches` is
  * the same function the build uses to write `content_scripts.matches`, so the
  * options page and the manifest can never disagree.
@@ -134,7 +158,7 @@ export function connectorsSection(): HTMLElement {
 	let options: UpstreamOptions | null = null;
 
 	const masterList = el("ul", { class: "list" });
-	const list = el("ul", { class: "list" });
+	const groups = el("div", {});
 
 	const search = el("input", {
 		class: "text-field",
@@ -163,7 +187,7 @@ export function connectorsSection(): HTMLElement {
 			search,
 		),
 		masterList,
-		list,
+		groups,
 	);
 
 	/** Unavailable connectors are excluded: they can never run. */
@@ -296,25 +320,6 @@ export function connectorsSection(): HTMLElement {
 		);
 	}
 
-	function summarySwitch(connector: ConnectorMeta): HTMLInputElement {
-		const input = el("input", {
-			type: "checkbox",
-			switch: true,
-			checked: !disabled[connector.id],
-			"aria-label": connector.label,
-		});
-
-		// Safari toggles a <details> when anything inside <summary> is clicked, so
-		// upstream prevents the default and applies the state itself; we do the same.
-		input.addEventListener("click", (event) => {
-			event.preventDefault();
-			input.checked = !input.checked;
-			toggle(connector, input.checked);
-		});
-
-		return input;
-	}
-
 	/**
 	 * A connector whose patterns cannot be expressed as match patterns. It can
 	 * never run, so its switch and settings are disabled.
@@ -358,31 +363,51 @@ export function connectorsSection(): HTMLElement {
 			return unavailableItem(connector);
 		}
 
-		const node = el("details", { class: "connector" });
-		node.append(
+		// Deliberately not a <details>/<summary>: Safari swallows clicks on a
+		// native switch inside a summary, which stopped the row toggling. A button
+		// for the disclosure keeps the switch a plain, working control.
+		const body = el("div", { class: "connector__body", hidden: true });
+		let built = false;
+
+		const disclosure = el(
+			"button",
+			{
+				class: "connector__disclosure",
+				type: "button",
+				"aria-expanded": "false",
+				onClick: () => {
+					const opening = body.hidden;
+					body.hidden = !opening;
+					disclosure.setAttribute("aria-expanded", String(opening));
+					// Built on first expand, like upstream.
+					if (opening && !built) {
+						built = true;
+						body.append(details(connector));
+					}
+				},
+			},
+			el("span", { class: "connector__chevron" }, icon("caret-right", 16)),
 			el(
-				"summary",
-				{ class: "list-row connector__summary" },
-				el("span", { class: "connector__chevron" }, icon("caret-right", 16)),
-				el(
-					"div",
-					{ class: "list-row__label" },
-					el("div", { class: "list-row__title" }, connector.label),
-					el("div", { class: "list-row__subtitle" }, connector.id),
-				),
-				summarySwitch(connector),
+				"div",
+				{ class: "list-row__label" },
+				el("div", { class: "list-row__title" }, connector.label),
+				el("div", { class: "list-row__subtitle" }, connector.id),
 			),
 		);
 
-		// Built on first expand, like upstream.
-		node.addEventListener("toggle", () => {
-			if (node.open && !node.dataset.built) {
-				node.dataset.built = "true";
-				node.append(details(connector));
-			}
-		});
-
-		return el("li", { class: "connector-item" }, node);
+		return el(
+			"li",
+			{ class: "connector-item" },
+			el(
+				"div",
+				{ class: "list-row connector__summary" },
+				disclosure,
+				switchControl(connector.label, !disabled[connector.id], (checked) =>
+					toggle(connector, checked),
+				),
+			),
+			body,
+		);
 	}
 
 	function masterRow(): HTMLElement {
@@ -409,26 +434,50 @@ export function connectorsSection(): HTMLElement {
 		);
 	}
 
+	function group(title: string, items: ConnectorMeta[]): HTMLElement {
+		return el(
+			"div",
+			{},
+			el("div", { class: "group-title" }, title),
+			el("ul", { class: "list" }, ...items.map(connectorItem)),
+		);
+	}
+
 	function render(): void {
 		refreshMaster();
 
-		const visible = ALL_CONNECTORS.filter(matches);
-		if (visible.length === 0) {
+		const popular = POPULAR_CONNECTORS.filter(matches);
+		const others = OTHER_CONNECTORS.filter(matches);
+
+		if (popular.length === 0 && others.length === 0) {
 			mount(
-				list,
+				groups,
 				el(
-					"li",
-					{ class: "list-row" },
+					"ul",
+					{ class: "list" },
 					el(
-						"div",
-						{ class: "list-row__label" },
-						el("div", { class: "list-row__subtitle" }, "No connectors match."),
+						"li",
+						{ class: "list-row" },
+						el(
+							"div",
+							{ class: "list-row__label" },
+							el(
+								"div",
+								{ class: "list-row__subtitle" },
+								"No connectors match.",
+							),
+						),
 					),
 				),
 			);
 			return;
 		}
-		mount(list, ...visible.map(connectorItem));
+
+		mount(
+			groups,
+			...(popular.length > 0 ? [group("Popular services", popular)] : []),
+			...(others.length > 0 ? [group("Other services", others)] : []),
+		);
 	}
 
 	render();
