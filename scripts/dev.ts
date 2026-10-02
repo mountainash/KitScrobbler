@@ -1,6 +1,8 @@
+import { join } from "node:path";
 import optionsHtml from "../app/options/index.html";
 import devHtml from "../app/popup/dev.html";
 import popupHtml from "../app/popup/index.html";
+import { appDir } from "./paths";
 import { ensurePhosphorAssets } from "./phosphor";
 
 /**
@@ -27,8 +29,11 @@ const server = Bun.serve({
 		"/popup/index.html": popupHtml,
 		"/popup/dev.html": devHtml,
 		"/options/index.html": optionsHtml,
-		// The popup links to the manifest's options path; serve it in preview too.
+		// The pages link to extension-relative assets by their built paths.
 		"/src/ui/options/index.html": optionsHtml,
+		"/icons/kit-scrobbler.svg": Bun.file(
+			join(appDir, "icons", "kit-scrobbler.svg"),
+		),
 	},
 });
 

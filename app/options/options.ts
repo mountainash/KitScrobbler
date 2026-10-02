@@ -1,4 +1,4 @@
-import { getBrowser } from "@kit/shared/browser";
+import { extensionUrl, getBrowser } from "@kit/shared/browser";
 import { el, mount, segmentedControl } from "@kit/shared/dom";
 import { ICONS, type IconName, icon, SERVICE_ICONS } from "@kit/shared/icons";
 import {
@@ -146,7 +146,16 @@ function sidebar(): HTMLElement {
 	return el(
 		"aside",
 		{ class: "sidebar" },
-		el("h1", { class: "sidebar__title" }, "Kit Scrobbler"),
+		el(
+			"h1",
+			{ class: "sidebar__title" },
+			el("img", {
+				class: "sidebar__logo",
+				src: extensionUrl("icons/kit-scrobbler.svg"),
+				alt: "",
+			}),
+			"Kit Scrobbler",
+		),
 		el(
 			"nav",
 			{ class: "sidebar__nav" },

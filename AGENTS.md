@@ -102,11 +102,13 @@ the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
    rewrites `light-dark()` and flattens CSS Nesting — the exact modern CSS we insist on shipping as-is.
    The HTML is copied with just its entry script rewritten (`./popup.ts` → `./popup.js`); the source
    points at the TypeScript entry so Bun's dev server can bundle it.
-3. The generated `manifest.json` is patched in place: name, version, icon entries repointed at the
-   Safari artwork, and `content_scripts.matches` narrowed from upstream's `<all_urls>`.
-4. `scripts/assets.ts` stages the images upstream's build no longer produces: the checked-in
-   `src/icons/icon_safari_*.png` (manifest/toolbar) and `src/img/main/*` (in-page info box and
-   scrobble notifications).
+3. `scripts/background.ts` bundles Kit's own background script to `background/kit.js`; the manifest patch
+   lists it ahead of upstream's background so its toolbar-icon hook is installed before the first update.
+4. The generated `manifest.json` is patched in place: name, version, Kit's SVG icons, and
+   `content_scripts.matches` narrowed from upstream's `<all_urls>`.
+5. `scripts/assets.ts` stages the images upstream's build no longer produces: Kit's `app/icons/*.svg`, the
+   one upstream PNG the controller hard-codes (`icon_main_48.png`), and `src/img/main/*` (in-page info box
+   and scrobble notifications).
 
 **Content-script scope.** Upstream matches `<all_urls>`, so its content script runs on every page.
 `app/shared/connector-matches.ts` narrows that to the apex domain of every host the connectors declare
@@ -131,10 +133,19 @@ carry a note.
 **Icons.** We do not render upstream's icon set. `upstream-driver.ts` drops two of its Vite plugins —
 `generate-icons` (native canvas, renders `src/icons/{main,monochrome}` into `icon_main_*` and per-mode
 `action_*` files) and `minify-images` (imagemin binaries) — and stubs `canvas` via a module hook
-(`canvas-stub-hooks.mjs`), because merely importing the Vite configs would otherwise load it. We ship
-`src/icons/icon_safari_*.png` instead. Note upstream's `action.ts` still asks for per-mode
-`icons/action_<mode>_<size>_<theme>.png` at runtime; those no longer exist, so the toolbar keeps the
-Safari icon from the manifest.
+(`canvas-stub-hooks.mjs`), because merely importing the Vite configs would otherwise load it.
+
+Kit's own artwork lives in `app/icons` as SVG, staged into `build/preview/icons` by `assets.ts`. The
+manifest names a single SVG logo for `icons` (Apple's sample extension does the same) and the resting
+toolbar icon for `action.default_icon`; upstream's one hard-coded image, `icons/icon_main_48.png` for
+the in-page info box, is still staged from `src/icons/icon_safari_48.png`.
+
+Upstream's `action.ts` drives the toolbar from the controller mode, asking for
+`icons/action_<mode>_<size>_<theme>.png` on every update — files that no longer exist. `app/background/kit.ts`
+(listed first in `background.scripts`) therefore wraps `browser.action.setIcon` and swaps the artwork via
+`app/shared/action-icon.ts`: recording while a track plays, resting otherwise. Reading upstream's decision
+rather than re-deriving it keeps us in step with the controller without touching the submodule, and no
+`icon_main_*.png` set needs to be generated.
 
 `build/preview` is a plain, complete web extension folder — point Safari's Developer tab at it with
 **Add Temporary Extension** to run it, exactly like loading an unpacked extension in Firefox/Chromium.

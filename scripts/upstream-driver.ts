@@ -62,9 +62,9 @@ interface UpstreamConfig {
 /**
  * Upstream's image pipeline: `generate-icons` renders the icon set from
  * `src/icons/{main,monochrome}` with native canvas, and `minify-images` needs
- * the imagemin binaries. Kit Scrobbler ships the Safari artwork from
- * `src/icons/icon_safari_*.png` instead (see `scripts/assets.ts`), so both
- * plugins are dropped before building.
+ * the imagemin binaries. Kit Scrobbler ships its own artwork from `app/icons`
+ * instead (see `scripts/assets.ts`), so both plugins are dropped before
+ * building.
  */
 const SKIPPED_PLUGINS = new Set(["generate-icons", "minify-images"]);
 

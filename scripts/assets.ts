@@ -1,34 +1,35 @@
 import { cpSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { previewDir, upstreamDir } from "./paths";
+import { appDir, previewDir, upstreamDir } from "./paths";
 
 /**
- * The Safari artwork we ship, straight from upstream's `src/icons/`.
+ * Kit Scrobbler's own artwork, kept as SVG so one file covers every size (this
+ * is what Apple's sample extension does with its `icons` entry).
  *
- * Upstream renders its icon set from `src/icons/{main,monochrome}` with native
- * canvas (see `upstream-driver.ts`, which skips that plugin); Kit Scrobbler uses
- * these checked-in Safari PNGs instead.
+ * The two toolbar icons mirror upstream's per-mode set in a single pair:
+ * `unsupported` when nothing is playing, `recording` while a track does.
  */
-export const SAFARI_ICON_SIZES = [48, 96, 128, 256, 512] as const;
+export const KIT_ICONS = {
+	logo: "kit-scrobbler.svg",
+	unsupported: "kit-scrobbler-unsupported.svg",
+	recording: "kit-scrobbler-recording.svg",
+} as const;
 
 const ICONS_SRC = join(upstreamDir, "src", "icons");
 const IMG_SRC = join(upstreamDir, "src", "img", "main");
+const KIT_ICONS_SRC = join(appDir, "icons");
 
 /**
  * Copies the images the extension needs into the preview.
  *
  * Without upstream's icon pipeline nothing populates `icons/` or `img/`, so we
- * stage them: the Safari icons for the manifest/toolbar, and upstream's images
- * for the in-page info box and scrobble notifications.
+ * stage our own artwork plus the one upstream image the controller hard-codes.
  */
 export function stageSafariAssets(): void {
 	const iconsOut = join(previewDir, "icons");
 	mkdirSync(iconsOut, { recursive: true });
-	for (const size of SAFARI_ICON_SIZES) {
-		cpSync(
-			join(ICONS_SRC, `icon_safari_${size}.png`),
-			join(iconsOut, `icon_safari_${size}.png`),
-		);
+	for (const icon of Object.values(KIT_ICONS)) {
+		cpSync(join(KIT_ICONS_SRC, icon), join(iconsOut, icon));
 	}
 	// Upstream's in-page info box asks for this exact filename.
 	cpSync(

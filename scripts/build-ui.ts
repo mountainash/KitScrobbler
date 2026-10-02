@@ -72,6 +72,29 @@ function copyStatic(outdir: string, includeDev: boolean): void {
 }
 
 /**
+ * Build settings shared by Kit's own scripts, so the background build cannot
+ * drift from the pages'.
+ *
+ * Splitting is off because everything ships locally inside the extension, so
+ * separately-fetched chunks would buy nothing. `includeDev` decides whether the
+ * popup's dev-state harness survives: the popup gates it on
+ * `process.env.NODE_ENV !== "production"` so that Bun's dev server (which
+ * substitutes NODE_ENV but not our own defines) behaves the same way.
+ */
+export function scriptBuildOptions(includeDev: boolean) {
+	return {
+		target: "browser" as const,
+		splitting: false,
+		define: {
+			"process.env.NODE_ENV": includeDev ? '"development"' : '"production"',
+			"process.env.VITE_PROD": '"true"',
+			"process.env.VITE_SAFARI": '"true"',
+		},
+		plugins: [upstreamAlias(), vIfdef(["VITE_SAFARI", "VITE_PROD"])],
+	};
+}
+
+/**
  * Bundles Kit Scrobbler's popup and options pages with Bun.build.
  *
  * `root` is `app/`, so the entries land at the exact paths upstream's generated
@@ -92,26 +115,13 @@ export async function buildUi(options: BuildUiOptions = {}) {
 		entrypoints,
 		root: appDir,
 		outdir,
-		target: "browser",
 		format: "esm",
-		// Everything ships locally inside the extension, so splitting shared code
-		// into separately-fetched chunks buys nothing. Each page becomes one file.
-		splitting: false,
 		minify,
 		sourcemap,
 		naming: {
 			entry: "[dir]/[name].js",
 		},
-		define: {
-			// `includeDev` decides whether the popup's dev-state harness survives:
-			// the popup gates it on `process.env.NODE_ENV !== "production"` so that
-			// Bun's dev server (which substitutes NODE_ENV but not our own defines)
-			// behaves the same way.
-			"process.env.NODE_ENV": includeDev ? '"development"' : '"production"',
-			"process.env.VITE_PROD": '"true"',
-			"process.env.VITE_SAFARI": '"true"',
-		},
-		plugins: [upstreamAlias(), vIfdef(["VITE_SAFARI", "VITE_PROD"])],
+		...scriptBuildOptions(includeDev),
 	});
 
 	if (!result.success) {

@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { connectorMatches } from "../app/shared/connector-matches";
-import { SAFARI_ICON_SIZES } from "./assets";
+import { KIT_ICONS } from "./assets";
 import { manifestPath, root } from "./paths";
 
 interface PackageJson {
@@ -24,22 +24,33 @@ interface Manifest {
 	[key: string]: unknown;
 }
 
-/** Toolbar sizes Safari asks for; all point at the Safari icon we ship. */
+/**
+ * Apple's sample extension names a single SVG for `icons` and lets Safari scale
+ * it, so Kit Scrobbler ships one logo instead of a set of PNGs.
+ */
+const APP_ICON_PATH = `icons/${KIT_ICONS.logo}`;
+
+/** Toolbar sizes Safari asks for; the background script swaps in the other one. */
 const ACTION_ICON_SIZES = [16, 19, 32, 38] as const;
 
-function safariIcon(size: number): string {
-	return `icons/icon_safari_${size}.png`;
-}
+/** The toolbar's resting state, before any tab reports a track. */
+const ACTION_ICON_PATH = `icons/${KIT_ICONS.unsupported}`;
+
+/** Kit's background hook, written by `buildBackgroundScript`. */
+const ACTION_ICON_SCRIPT = "background/kit.js";
 
 /**
  * Rewrites the *generated* manifest in the preview extension so it presents as
  * Kit Scrobbler. The manifest is produced by upstream's Vite plugin from
  * `manifest.config.ts`; we only patch the build output, never the submodule.
  *
- * Two changes:
+ * Changes:
  *
- * - icons are repointed at the Safari artwork, since upstream's manifest names
- *   the canvas-rendered `icons/icon_main_*.png` we no longer build;
+ * - icons point at Kit's own artwork (`app/icons/*.svg`): upstream's manifest
+ *   names the canvas-rendered `icons/icon_main_*.png` and a per-mode action icon
+ *   set that we no longer build;
+ * - Kit's action-icon hook is added ahead of upstream's background script, so it
+ *   can swap the toolbar icon on every controller update;
  * - `content_scripts.matches` is narrowed from upstream's `<all_urls>` to the
  *   apex domains of the sites the connectors actually need (see
  *   `app/shared/connector-matches.ts`).
@@ -56,19 +67,38 @@ export function patchManifest(): void {
 		manifest.version = pkg.version;
 	}
 
-	manifest.icons = Object.fromEntries(
-		SAFARI_ICON_SIZES.map((size) => [String(size), safariIcon(size)]),
-	);
+	manifest.icons = { "512": APP_ICON_PATH };
 	if (manifest.action) {
 		manifest.action.default_icon = Object.fromEntries(
-			ACTION_ICON_SIZES.map((size) => [String(size), safariIcon(48)]),
+			ACTION_ICON_SIZES.map((size) => [String(size), ACTION_ICON_PATH]),
 		);
 	}
+
+	registerActionIconHook(manifest);
 
 	reportMatches(manifest);
 
 	writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-	console.log("• Patched manifest.json (name, version, Safari icons).");
+	console.log("• Patched manifest.json (name, version, Kit icons).");
+}
+
+/**
+ * Runs Kit's action-icon hook before upstream's background script, so the toolbar
+ * icon is already wrapped when the controller sends its first update.
+ */
+function registerActionIconHook(manifest: Manifest): void {
+	const background = manifest.background as { scripts?: string[] } | undefined;
+	if (!background?.scripts) {
+		console.warn(
+			"  ⚠ manifest has no background.scripts; the toolbar icon will not change state.",
+		);
+		return;
+	}
+
+	background.scripts = [
+		ACTION_ICON_SCRIPT,
+		...background.scripts.filter((script) => script !== ACTION_ICON_SCRIPT),
+	];
 }
 
 function reportMatches(manifest: Manifest): void {
