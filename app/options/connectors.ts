@@ -324,52 +324,43 @@ export function connectorsSection(): HTMLElement {
 		);
 	}
 
-	/**
-	 * A connector whose patterns cannot be expressed as match patterns. It can
-	 * never run, so its switch and settings are disabled.
-	 */
-	function unavailableItem(connector: ConnectorMeta): HTMLElement {
+	/** Why an unavailable connector cannot work, shown inside its disclosure. */
+	function unavailableNote(): HTMLElement {
 		return el(
-			"li",
-			{ class: "connector-item" },
+			"div",
+			{ class: "connector__warning" },
+			icon("warning-circle", 14),
 			el(
-				"div",
-				{ class: "list-row connector__summary is-unavailable" },
-				el(
-					"div",
-					{ class: "list-row__label" },
-					el("div", { class: "list-row__title" }, connector.label),
-					el("div", { class: "list-row__subtitle" }, connector.id),
-					el(
-						"div",
-						{ class: "connector__warning" },
-						icon("warning-circle", 14),
-						el(
-							"span",
-							{},
-							"Not available: its site patterns can't be expressed as Safari matches. ",
-						),
-						el(
-							"a",
-							{ href: ISSUES_URL, target: "_blank", rel: "noreferrer" },
-							"Raise an issue",
-						),
-						el("span", {}, " if you need it."),
-					),
-				),
-				switchControl(connector.label, false, () => {}, true),
+				"span",
+				{},
+				"Not available: its site patterns can't be expressed as Safari matches. ",
 			),
+			el(
+				"a",
+				{ href: ISSUES_URL, target: "_blank", rel: "noreferrer" },
+				"Raise an issue",
+			),
+			el("span", {}, " if you need it."),
 		);
 	}
 
-	function connectorItem(connector: ConnectorMeta): HTMLElement {
-		if (UNREACHABLE.has(connector.id)) {
-			return unavailableItem(connector);
-		}
-
-		// Deliberately not a <details>/<summary>: Safari swallows clicks on a
-		// native switch inside a summary, which stopped the row toggling. A button
-		// for the disclosure keeps the switch a plain, working control.
+	/**
+	 * A connector row: its disclosure and switch, plus a body built the first time
+	 * it is expanded, like upstream.
+	 *
+	 * Deliberately not a `<details>`/`<summary>`: Safari swallows clicks on a
+	 * native switch inside a summary, which stopped the row toggling. A button for
+	 * the disclosure keeps the switch a plain, working control.
+	 *
+	 * @param available - A connector whose patterns cannot be expressed never runs,
+	 *   so its switch is disabled and its body explains why.
+	 * @param build - The body's contents.
+	 */
+	function disclosureItem(
+		connector: ConnectorMeta,
+		available: boolean,
+		build: () => HTMLElement,
+	): HTMLElement {
 		const body = el("div", { class: "connector__body", hidden: true });
 		let built = false;
 
@@ -383,10 +374,9 @@ export function connectorsSection(): HTMLElement {
 					const opening = body.hidden;
 					body.hidden = !opening;
 					disclosure.setAttribute("aria-expanded", String(opening));
-					// Built on first expand, like upstream.
 					if (opening && !built) {
 						built = true;
-						body.append(details(connector));
+						body.append(build());
 					}
 				},
 			},
@@ -399,18 +389,33 @@ export function connectorsSection(): HTMLElement {
 			),
 		);
 
+		const control = available
+			? switchControl(connector.label, !disabled[connector.id], (checked) =>
+					toggle(connector, checked),
+				)
+			: switchControl(connector.label, false, () => {}, true);
+
 		return el(
 			"li",
 			{ class: "connector-item" },
 			el(
 				"div",
-				{ class: "list-row connector__summary" },
+				{
+					class: available
+						? "list-row connector__summary"
+						: "list-row connector__summary is-unavailable",
+				},
 				disclosure,
-				switchControl(connector.label, !disabled[connector.id], (checked) =>
-					toggle(connector, checked),
-				),
+				control,
 			),
 			body,
+		);
+	}
+
+	function connectorItem(connector: ConnectorMeta): HTMLElement {
+		const available = !UNREACHABLE.has(connector.id);
+		return disclosureItem(connector, available, () =>
+			available ? details(connector) : unavailableNote(),
 		);
 	}
 
