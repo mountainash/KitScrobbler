@@ -1,7 +1,8 @@
 name: Release
 
 # Publishing a tag (v1.2.3) builds the Safari extension, packages it, and opens a
-# GitHub release carrying that build and the commits since the previous version.
+# draft GitHub release carrying that build and the commits since the previous
+# version — nothing goes live until it is published by hand.
 on:
   push:
     tags:
@@ -96,11 +97,15 @@ jobs:
 
           cat release-notes.md
 
-      - name: Publish the release
+      # A draft, so the notes and the attached build can be reviewed before
+      # anything is published. Publish it (or delete and re-tag to regenerate)
+      # from the Releases page.
+      - name: Draft the release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
           gh release create "$TAG" "dist/KitScrobbler-$TAG.zip" \
             --title "$TAG" \
-            --notes-file release-notes.md
+            --notes-file release-notes.md \
+            --draft

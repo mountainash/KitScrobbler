@@ -169,9 +169,10 @@ identifiers, team and signing in the Xcode project (they cannot be set per-targe
 
 Pushing a `v*` tag runs `.github/workflows/release.yml`. It builds the release variant on Linux — the
 runner image's Chrome renders the toolbar icons — zips `build/preview` to `KitScrobbler-<tag>.zip`, keeps
-that zip as a run artifact, and opens a GitHub release attached to it whose notes list every commit since
-the previous `v*` tag, with the short ref linked to the commit. That build is `bun run build:release`,
-which is `bun run build` without the popup state gallery.
+that zip as a run artifact, and opens a **draft** GitHub release attached to it whose notes list every commit
+since the previous `v*` tag, with the short ref linked to the commit. Nothing is published until someone
+reviews that draft and publishes it. That build is `bun run build:release`, which is `bun run build` without
+the popup state gallery.
 
 ## Upstream landmines (do not forget these)
 
