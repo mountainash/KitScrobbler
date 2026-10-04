@@ -40,6 +40,9 @@ body {
 			background: var(--bg-hover);
 			color: var(--text-primary);
 		}
+		&:focus {
+			outline: none;
+		}
 	}
 }
 

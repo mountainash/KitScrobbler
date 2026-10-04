@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, rmSync } from "node:fs";
 import { delimiter, join } from "node:path";
 import {
@@ -9,35 +8,25 @@ import {
 } from "./paths";
 
 /**
- * Installs the submodule's own dependencies (it uses npm, so we run `npm ci`
- * against its `package-lock.json`).
+ * Installs the submodule's own dependencies
  *
  * Skipped when already installed, so this is cheap to call from `bun install`'s
  * postinstall as well as from the build.
  */
 export function ensureUpstreamDependencies(): void {
-	// Upstream's build needs its devDependencies (the Vite plugins), and npm
-	// omits them when NODE_ENV=production — so force `--include=dev` and use a
-	// dev-only package as the "already installed" sentinel.
+	// Upstream's build needs its devDependencies (the Vite plugins)
 	const sentinel = join(upstreamDir, "node_modules", "vite-plugin-solid");
 	if (existsSync(sentinel)) {
 		return;
 	}
 
-	// Upstream's toolchain also has packages with install scripts (esbuild,
-	// canvas, the jpegtran/pngquant binaries); npm 12 blocks those by default.
-	console.log("• Installing upstream dependencies (npm ci --include=dev)…");
-	execFileSync(
-		"npm",
-		[
-			"ci",
-			"--include=dev",
-			"--dangerously-allow-all-scripts",
-			"--no-audit",
-			"--no-fund",
-		],
-		{ cwd: upstreamDir, stdio: "inherit" },
-	);
+	console.log("• Installing upstream dependencies");
+
+	// Upstream's toolchain also has packages with install scripts (esbuild, canvas, the jpegtran/pngquant binaries)
+	Bun.spawnSync(["bun", "i", "--no-save"], {
+		cwd: upstreamDir,
+		timeout: 15000, // 15 seconds in milliseconds
+	});
 }
 
 /**
@@ -51,26 +40,28 @@ export function buildUpstreamRaw(): void {
 	ensureUpstreamDependencies();
 
 	const tsx = join(upstreamDir, "node_modules", ".bin", "tsx");
+
 	if (!existsSync(tsx)) {
 		throw new Error(
-			`Upstream's tsx is missing. Run "npm ci" in ${upstreamDir} and retry.`,
+			`⚠️ Upstream's tsx is missing. Run "bun i" in ${upstreamDir} and retry.`,
 		);
 	}
 
-	// Upstream's connector step shells out to `esbuild`, which it finds on PATH
-	// via npm. We invoke tsx directly, so add its bin directory ourselves.
+	// Upstream's connector step shells out to `esbuild`. Invoke tsx directly
 	const binDir = join(upstreamDir, "node_modules", ".bin");
 	const path = `${binDir}${delimiter}${process.env.PATH ?? ""}`;
 
 	console.log("• Building upstream raw Safari bundle…");
-	execFileSync(tsx, [upstreamDriver], {
+
+	Bun.spawnSync(["tsx", upstreamDriver], {
 		cwd: upstreamDir,
-		stdio: "inherit",
+		stdio: ["inherit", "inherit", "inherit"],
 		env: { ...process.env, PATH: path },
+		timeout: 15000, // 15 seconds in milliseconds
 	});
 
 	if (!existsSync(upstreamRawDir)) {
-		throw new Error("Upstream did not produce build/safariraw.");
+		throw new Error("💣 Upstream did not produce build/safariraw.");
 	}
 
 	rmSync(previewDir, { recursive: true, force: true });

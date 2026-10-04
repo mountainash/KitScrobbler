@@ -1,6 +1,6 @@
-import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import type { SyncSubprocess } from "bun";
 import { cleanGitEnv } from "./git";
 
 const REL = "src/web-scrobbler";
@@ -12,20 +12,21 @@ if (!existsSync(join(submodule, ".git"))) {
 	process.exit(0);
 }
 
-let status: string;
+let status: SyncSubprocess;
+
 try {
-	status = execFileSync("git", ["status", "--porcelain"], {
+	status = Bun.spawnSync(["git", "status", "--porcelain"], {
 		cwd: submodule,
-		encoding: "utf8",
 		env: cleanGitEnv(),
 	});
+	console.log(`ℹ️ Status of upstream submodule (${REL}):\n${status.stdout}`);
 } catch (err) {
-	console.error(`✖ Could not read status of ${REL}.`);
+	console.error(`❌ Could not read status of ${REL}.`);
 	console.error(err);
 	process.exit(1);
 }
 
-const changes = status.trim();
+const changes = await status.stdout?.toString().trim();
 
 if (changes) {
 	const indented = changes
@@ -35,10 +36,9 @@ if (changes) {
 	console.error(
 		[
 			"",
-			`✖ Kit Scrobbler forbids modifying the upstream submodule (${REL}).`,
+			`❌ Kit Scrobbler forbids modifying the upstream submodule (${REL}).`,
 			"",
 			"  The following changes were found inside it:",
-			"",
 			indented,
 			"",
 			"  Revert them before committing:",
@@ -49,4 +49,4 @@ if (changes) {
 	process.exit(1);
 }
 
-console.log(`✔ Upstream submodule (${REL}) is clean.`);
+console.log(`✅ Upstream submodule (${REL}) is clean.`);

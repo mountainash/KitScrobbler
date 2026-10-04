@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { cleanGitEnv } from "./git";
@@ -29,22 +28,21 @@ function ensureSubmodule(): void {
 	}
 
 	if (existsSync(join(submodule, ".git"))) {
-		console.log(`✔ ${REL} submodule already initialised.`);
+		console.log(`✅ ${REL} submodule already initialised.`);
 		return;
 	}
 
 	console.log(`• Initialising the ${REL} submodule…`);
 	try {
-		execFileSync("git", ["submodule", "update", "--init", "--recursive"], {
+		Bun.spawnSync(["git", "submodule", "update", "--init", "--recursive"], {
 			cwd: root,
 			env: cleanGitEnv(),
-			stdio: "inherit",
 		});
 	} catch {
 		console.error(
 			[
 				"",
-				`✖ Could not initialise the ${REL} submodule.`,
+				`❌ Could not initialise the ${REL} submodule.`,
 				"",
 				"  Kit Scrobbler vendors Web Scrobbler as a git submodule. Fetch it with:",
 				"",
@@ -55,7 +53,7 @@ function ensureSubmodule(): void {
 		process.exit(1);
 	}
 
-	console.log(`✔ ${REL} submodule ready.`);
+	console.log(`✅ ${REL} submodule ready.`);
 }
 
 ensureSubmodule();

@@ -6,16 +6,11 @@
 
 ## 💁 About
 
-Kit Scrobbler is narrowly scooped to be the best tool for scrobbling music in **Safari on macOS**.
-It is not a generic cross-platform scrobbler and it does not try to be. Everything here is tuned for
-Apple's browser and Apple's design language.
+Kit Scrobbler is narrowly scooped to be the best extension for scrobbling music in **Safari on macOS**. It is not a generic cross-platform scrobbler and it does not try to be. Everything here is tuned for Apple's webkit browser and Apple's design language.
 
-It is built *around* the [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) codebase — connectors and playback logic — which is vendored as a **read-only git submodule** at
-`src/web-scrobbler/`. Kit Scrobbler contributes its own Bun-powered build pipeline and its own
-Apple-styled UI on top.
+It is built *around* the [Web Scrobbler](https://github.com/web-scrobbler/web-scrobbler) codebase — connectors and playback logic — which is vendored as a **read-only git submodule** at `src/web-scrobbler/`. Kit Scrobbler uses its own Bun-powered build pipeline and its own Apple-styled UI on top.
 
-See [AGENTS.md](./AGENTS.md) for the project constitution (the rules an automated agent — or a human —
-must follow).
+See [AGENTS.md](./AGENTS.md) for the project constitution (the rules an automated agent — or a human — should follow).
 
 ## 🗂 Layout
 
@@ -45,43 +40,24 @@ Run these commands from the repository root.
 
 Building is two steps:
 
-1. **`bun run build`** produces the loadable extension at `build/preview`. This is a plain web
-   extension folder, so you can run it without Xcode: in Safari open **Settings → Advanced**, tick
-   **Show features for web developers**, then in the **Developer** tab click **Add Temporary
-   Extension…** and choose `build/preview`.
-2. **`bun run bundle`** wraps the same bundle in its native host app, archives it with `xcodebuild`
-   and exports it to `dist/` for the App Store. This step needs **macOS + Xcode** and a signing
-   identity.
+1. **`bun run build`** produces the loadable extension at `build/preview`. This is a plain web extension folder, so you can run it without Xcode: in Safari open **Settings → Advanced**, tick **Show features for web developers**, then in the **Developer** tab click **Add Temporary Extension…** and choose `build/preview`.
+2. **`bun run bundle`** wraps the same bundle in its native host app, archives it with `xcodebuild` and exports it to `dist/` for the App Store. This step needs **macOS + Xcode** and a signing identity.
 
-`bun run build` needs upstream's native libraries: `brew install pango` on macOS, or the cairo/pango
-development packages on Linux.
+`bun run build` needs upstream's native libraries: `brew install pango` on macOS, or the cairo/pango development packages on Linux.
 
 ### 🖼 Popup state gallery
 
-`build/preview/src/ui/popup/dev.html` renders every popup state side by side in iframes, so you can
-compare them without a browser session for each. Individual states are addressable directly, e.g.
-`popup/index.html?state=loved`. The gallery is left out of `bun run bundle` and of
-`bun run build:release`, which is what the release workflow packages.
+`build/preview/src/ui/popup/dev.html` renders every popup state side by side in iframes, so you can compare them without a browser session for each. Individual states are addressable directly, e.g. `popup/index.html?state=loved`. The gallery is left out of `bun run bundle` and of `bun run build:release`, which is what the release workflow packages.
 
-`bun run dev` works anywhere Bun does, including the DevContainer — it serves the gallery from source
-through Bun's development server, so edits hot-reload in the browser (at
-<http://localhost:3000/popup/dev.html>), and the UI falls back to mock data outside an extension.
+`bun run dev` works anywhere Bun does, including the DevContainer — it serves the gallery from source through Bun's development server, so edits hot-reload in the browser (at <http://localhost:3000/popup/dev.html>), and the UI falls back to mock data outside an extension.
 
-You can also run this project inside a DevContainer in VS Code. After reopening the folder in the
-container, dependencies are installed automatically.
+You can also run this project inside a DevContainer in VS Code. After reopening the folder in the container, dependencies are installed automatically.
 
 ## 🎨 UI principles
 
-- Apple design tokens (spacing, corners, colours, type) live in `app/shared/theme.css` and are driven
-  by `color-scheme` + `light-dark()` — no duplicated dark-mode rules.
-- Modern CSS only: **CSS Nesting**, `:has()`, `@starting-style`, popovers. There is no preprocessor
-  and no transpilation step for our styles.
-- Native controls first: real `<input type="checkbox" switch>`, `<select>`, `<input type="range">`
-  with `accent-color`.
-
-## 🔗 URLs
-
-- <http://localhost:3000/>
+- Apple design tokens (spacing, corners, colours, type) live in `app/shared/theme.css` and are driven by `color-scheme` + `light-dark()` — no duplicated dark-mode rules.
+- Modern CSS only: **CSS Nesting**, `:has()`, `@starting-style`, popovers. There is no preprocessor and no transpilation step for our styles.
+- Native controls first: real `<input type="checkbox" switch>`, `<select>`, `<input type="range">` using `accent-color`.
 
 ### 📦 Dependency Updates
 
@@ -90,9 +66,12 @@ container, dependencies are installed automatically.
 
 ## 📚 Resources
 
+- [KitScrobbler Toolbar icons](./README-TOOLBAR-ICONS.md) - what the icons represent
+
 - [Biome](https://biomejs.dev)
 - [Bun](https://bun.sh)
 - [Phosphor Icons](https://phosphoricons.com/)
+- [Apple Developer: Safari Web Extensions](https://developer.apple.com/documentation/safariservices/safari-web-extensions/)
 
 ## ☑️ TODO
 

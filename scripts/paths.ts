@@ -36,5 +36,5 @@ export const archivePath = join(buildDir, "KitScrobbler.xcarchive");
 /** The export options plist written by `bun run bundle`. */
 export const exportOptionsPath = join(buildDir, "ExportOptions.plist");
 
-/** The driver script upstream's own `tsx` runs to produce the raw bundle. */
+/** The driver script to produce the raw bundle. */
 export const upstreamDriver = join(import.meta.dir, "upstream-driver.ts");

@@ -85,7 +85,7 @@ extension — the lazy loader keeps `bun run dev` alive and returns `null` (prev
 upstream logic, constants, or shapes into `app/`; unused code is tree-shaken at build.
 
 Type-checking upstream source needs the submodule's dependencies; `bun install`'s postinstall installs
-them with `npm ci` (`scripts/setup.ts`), and the build ensures them too. `tsconfig.json` also includes
+them with `bun i` (`scripts/setup.ts`), and the build ensures them too. `tsconfig.json` also includes
 the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
 
 ## Build pipeline

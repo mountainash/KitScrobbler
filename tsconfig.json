@@ -1,7 +1,11 @@
 {
 	"compilerOptions": {
 		"target": "ESNext",
-		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
 		"module": "Preserve",
 		"moduleResolution": "bundler",
 		"moduleDetection": "force",
@@ -12,13 +16,33 @@
 		"noEmit": true,
 		"strict": true,
 		"skipLibCheck": true,
+		"types": [
+			"bun",
+		],
 		"paths": {
-			"@kit/*": ["./app/*"],
-			"@upstream": ["./src/web-scrobbler"],
-			"@upstream/*": ["./src/web-scrobbler/*"],
-			"@/*": ["./src/web-scrobbler/src/*"]
+			"@kit/*": [
+				"./app/*"
+			],
+			"@upstream": [
+				"./src/web-scrobbler"
+			],
+			"@upstream/*": [
+				"./src/web-scrobbler/*"
+			],
+			"@/*": [
+				"./src/web-scrobbler/src/*"
+			]
 		}
 	},
-	"include": ["app/**/*", "scripts/**/*", "src/web-scrobbler/src/**/*.d.ts"],
-	"exclude": ["node_modules", "build", "dist", "src/web-scrobbler/build"]
+	"include": [
+		"app/**/*",
+		"scripts/**/*",
+		"src/web-scrobbler/src/**/*.d.ts"
+	],
+	"exclude": [
+		"node_modules",
+		"build",
+		"dist",
+		"src/web-scrobbler/build"
+	]
 }
