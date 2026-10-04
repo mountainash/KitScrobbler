@@ -35,6 +35,7 @@ Run these commands from the repository root.
 | `bun run dev` | Bun dev server with HMR: gallery at <http://localhost:3000/popup/dev.html> |
 | `bun run build:ui` | Bundle the popup + options into `build/preview` |
 | `bun run build` | Build the loadable extension into `build/preview` (any OS) |
+| `bun run build:release` | The same build without the popup state gallery — what the release workflow ships |
 | `bun run bundle` | Archive + export the App Store build to `dist/` (macOS + Xcode) |
 | `bun run check` | Lint + format check with Biome |
 | `bun run fix` | Biome autofix |
@@ -59,7 +60,8 @@ development packages on Linux.
 
 `build/preview/src/ui/popup/dev.html` renders every popup state side by side in iframes, so you can
 compare them without a browser session for each. Individual states are addressable directly, e.g.
-`popup/index.html?state=loved`. The gallery is left out of `bun run bundle`.
+`popup/index.html?state=loved`. The gallery is left out of `bun run bundle` and of
+`bun run build:release`, which is what the release workflow packages.
 
 `bun run dev` works anywhere Bun does, including the DevContainer — it serves the gallery from source
 through Bun's development server, so edits hot-reload in the browser (at

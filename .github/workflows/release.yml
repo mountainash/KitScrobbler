@@ -33,9 +33,10 @@ jobs:
         run: bun run check
 
       # The toolbar icons are rendered by a headless browser, which the runner
-      # image provides on PATH as `google-chrome`.
+      # image provides on PATH as `google-chrome`. `build:release` leaves out the
+      # popup state gallery, so the zip carries only what a user needs.
       - name: Build the extension
-        run: bun run build
+        run: bun run build:release
 
       - name: Package the extension
         env:

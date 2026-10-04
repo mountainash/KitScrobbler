@@ -167,10 +167,11 @@ and its fixtures are compiled out of `bun run bundle`.
 expects it, runs `xcodebuild archive`, and exports for the App Store. Configure the host app's bundle
 identifiers, team and signing in the Xcode project (they cannot be set per-target from the CLI).
 
-Pushing a `v*` tag runs `.github/workflows/release.yml`. It builds the preview on Linux (the runner image's
-Chrome renders the toolbar icons), zips `build/preview` to `KitScrobbler-<tag>.zip`, keeps that zip as a run
-artifact, and opens a GitHub release attached to it whose notes list every commit since the previous `v*`
-tag, with the short ref linked to the commit.
+Pushing a `v*` tag runs `.github/workflows/release.yml`. It builds the release variant on Linux — the
+runner image's Chrome renders the toolbar icons — zips `build/preview` to `KitScrobbler-<tag>.zip`, keeps
+that zip as a run artifact, and opens a GitHub release attached to it whose notes list every commit since
+the previous `v*` tag, with the short ref linked to the commit. That build is `bun run build:release`,
+which is `bun run build` without the popup state gallery.
 
 ## Upstream landmines (do not forget these)
 

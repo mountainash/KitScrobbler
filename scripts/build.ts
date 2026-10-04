@@ -31,12 +31,19 @@ export async function buildPreview(
 }
 
 if (import.meta.main) {
-	console.log("Kit Scrobbler — preview extension\n");
+	const includeDev = !process.argv.includes("--no-dev");
+	console.log(
+		`Kit Scrobbler — ${includeDev ? "preview" : "release"} extension\n`,
+	);
 
-	const dir = await buildPreview();
+	const dir = await buildPreview({ includeDev });
 
-	console.log(`\n✔ Preview extension ready: ${dir}`);
-	console.log(`  Popup state gallery: ${dir}/src/ui/popup/dev.html`);
+	console.log(
+		`\n✔ ${includeDev ? "Preview" : "Release"} extension ready: ${dir}`,
+	);
+	if (includeDev) {
+		console.log(`  Popup state gallery: ${dir}/src/ui/popup/dev.html`);
+	}
 	console.log("\n  Load it in Safari:");
 	console.log(
 		"    Safari → Settings → Advanced → Show features for web developers",
