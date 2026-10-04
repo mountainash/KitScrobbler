@@ -1,3 +1,4 @@
+import { buildActionIcons } from "./action-icons";
 import { stageSafariAssets } from "./assets";
 import { buildBackgroundScript } from "./background";
 import { buildUi } from "./build-ui";
@@ -24,6 +25,7 @@ export async function buildPreview(
 	await buildUi({ includeDev: options.includeDev });
 	await buildBackgroundScript();
 	stageSafariAssets();
+	await buildActionIcons();
 	patchManifest();
 	return previewDir;
 }

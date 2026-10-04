@@ -1,8 +1,10 @@
 /**
- * Kit Scrobbler's toolbar artwork, one file per controller mode, named for the
+ * Kit Scrobbler's toolbar artwork: one SVG per controller mode, named for the
  * mode upstream asks for in `icons/action_<mode>_<size>_<theme>.png`.
+ * `scripts/action-icons.ts` renders each one to those PNG names at build time,
+ * because `action.setIcon` needs a bitmap.
  *
- * Playing has no file of its own: it keeps the recording mark.
+ * Playing has no file of its own: the recording mark is the artwork made for it.
  */
 export const ACTION_ICONS: Record<string, string> = {
 	base: "action_base.svg",
@@ -27,20 +29,48 @@ export interface ActionIconDetails {
 	tabId?: number;
 }
 
-/** Upstream asks for `icons/action_<mode>_<size>_<theme>.png` on every update. */
-const UPSTREAM_ICON = /(?:^|\/)action_([a-z]+)_\d+_/;
+/** The sizes Safari asks for. */
+export const ACTION_ICON_SIZES = [16, 19, 32, 38] as const;
 
-/** The staged path for a controller mode, defaulting to the unsupported mark. */
-export function actionIconPath(mode: string | undefined): string {
-	return `icons/${(mode && ACTION_ICONS[mode]) || ACTION_ICONS.unsupported}`;
+/**
+ * The themes upstream can ask for in `action_<mode>_<size>_<theme>.png`. Kit's
+ * artwork is the same whichever theme is requested, so each render is written
+ * under all of these names.
+ */
+export const ACTION_ICON_THEMES = ["safari", "light", "dark"] as const;
+
+/** The PNG name upstream expects, rendered by `scripts/action-icons.ts`. */
+export function actionIconFile(
+	mode: string,
+	size: number,
+	theme: string,
+): string {
+	return `action_${mode}_${size}_${theme}.png`;
 }
 
 /**
- * Picks Kit's artwork for one of upstream's action icon paths — the mode
- * upstream already decided on, drawn as one of our own SVGs.
+ * The staged path for a mode at one size and theme. A mode with no artwork of
+ * its own gets the unsupported mark, whose file always exists.
+ */
+export function actionIconPath(
+	mode: string | undefined,
+	size: number,
+	theme: string = ACTION_ICON_THEMES[0],
+): string {
+	const known = mode && mode in ACTION_ICONS ? mode : "unsupported";
+	return `icons/${actionIconFile(known, size, theme)}`;
+}
+
+/** Upstream asks for `icons/action_<mode>_<size>_<theme>.png` on every update. */
+const UPSTREAM_ICON = /(?:^|\/)action_([a-z]+)_(\d+)_([a-z]+)\.png$/;
+
+/**
+ * Rewrites one of upstream's action icon paths to Kit's rendered artwork for the
+ * same mode, size and theme.
  */
 export function kitActionIconPath(upstreamPath: string): string {
-	return actionIconPath(UPSTREAM_ICON.exec(upstreamPath)?.[1]);
+	const [, mode, size, theme] = UPSTREAM_ICON.exec(upstreamPath) ?? [];
+	return actionIconPath(mode, Number(size ?? ACTION_ICON_SIZES[0]), theme);
 }
 
 /**

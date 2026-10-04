@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { actionIconPath } from "../app/shared/action-icon";
+import { ACTION_ICON_SIZES, actionIconPath } from "../app/shared/action-icon";
 import { connectorMatches } from "../app/shared/connector-matches";
 import { KIT_LOGO } from "./assets";
 import { manifestPath, root } from "./paths";
@@ -30,12 +30,6 @@ interface Manifest {
  * it, so Kit Scrobbler ships one logo instead of a set of PNGs.
  */
 const APP_ICON_PATH = `icons/${KIT_LOGO}`;
-
-/** Toolbar sizes Safari asks for; the background script swaps in the current mode. */
-const ACTION_ICON_SIZES = [16, 19, 32, 38] as const;
-
-/** Upstream's own default, until a tab reports which mode it is in. */
-const ACTION_ICON_PATH = actionIconPath("unsupported");
 
 /** Kit's background hook, written by `buildBackgroundScript`. */
 const ACTION_ICON_SCRIPT = "background/kit.js";
@@ -70,8 +64,12 @@ export function patchManifest(): void {
 
 	manifest.icons = { "512": APP_ICON_PATH };
 	if (manifest.action) {
+		// Upstream's own default, until a tab reports which mode it is in.
 		manifest.action.default_icon = Object.fromEntries(
-			ACTION_ICON_SIZES.map((size) => [String(size), ACTION_ICON_PATH]),
+			ACTION_ICON_SIZES.map((size) => [
+				String(size),
+				actionIconPath("unsupported", size),
+			]),
 		);
 	}
 

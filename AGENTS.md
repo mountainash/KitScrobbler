@@ -143,10 +143,12 @@ the in-page info box, is still staged from `src/icons/icon_safari_48.png`.
 Upstream's `action.ts` drives the toolbar from the controller mode, asking for
 `icons/action_<mode>_<size>_<theme>.png` on every update — files that no longer exist.
 `app/shared/action-icon.ts` maps those modes onto the SVG set in `app/icons`: one file per mode, named for
-the mode upstream asks for, with playing keeping the recording mark. `app/background/kit.ts` (listed first
-in `background.scripts`) wraps `browser.action.setIcon` to draw it. Reading upstream's decision rather than
-re-deriving it keeps us in step with the controller without touching the submodule, and no `icon_main_*.png`
-set needs to be generated.
+the mode upstream asks for, with playing keeping the recording mark. `scripts/action-icons.ts` renders each
+one to the PNG names Safari asks for (`Bun.Image` cannot decode SVG, so a `Bun.WebView` draws it into a
+canvas page-side — that works on the macOS WebKit backend as well as Chrome), and `app/background/kit.ts`
+(listed first in `background.scripts`) wraps `browser.action.setIcon` to draw it. Reading upstream's decision
+rather than re-deriving it keeps us in step with the controller without touching the submodule, and no
+`icon_main_*.png` set needs to be generated. `README-TOOLBAR-ICONS.md` documents what each state means.
 
 `build/preview` is a plain, complete web extension folder — point Safari's Developer tab at it with
 **Add Temporary Extension** to run it, exactly like loading an unpacked extension in Firefox/Chromium.
