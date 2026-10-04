@@ -9,7 +9,6 @@ export const KIT_LOGO = "kit-scrobbler.svg";
 /** Everything `stageSafariAssets` copies in, the toolbar set included. */
 const KIT_ICON_FILES = [KIT_LOGO, ...new Set(Object.values(ACTION_ICONS))];
 
-const ICONS_SRC = join(upstreamDir, "src", "icons");
 const IMG_SRC = join(upstreamDir, "src", "img", "main");
 const KIT_ICONS_SRC = join(appDir, "icons");
 
@@ -27,21 +26,17 @@ const IMAGE_SOURCES = [
  *
  * Without upstream's image pipeline nothing populates `icons/` or `img/`, so we
  * stage our own artwork plus the few upstream images the controller asks for by
- * name. Upstream's own UI build output is dead weight: Kit replaces the popup
- * and options pages, so nothing references its chunks or the artwork that went
- * with them.
+ * name. Upstream's own UI build output, and the icons that went with its toolbar
+ * set, are dead weight: Kit replaces both.
  */
 export function stageSafariAssets(): void {
+	// Cleared first, so an asset that stops being staged cannot linger.
 	const iconsOut = join(previewDir, "icons");
+	rmSync(iconsOut, { recursive: true, force: true });
 	mkdirSync(iconsOut, { recursive: true });
 	for (const icon of KIT_ICON_FILES) {
 		cpSync(join(KIT_ICONS_SRC, icon), join(iconsOut, icon));
 	}
-	// Upstream's in-page info box asks for this exact filename.
-	cpSync(
-		join(ICONS_SRC, "icon_safari_48.png"),
-		join(iconsOut, "icon_main_48.png"),
-	);
 
 	rmSync(UPSTREAM_UI_DIR, { recursive: true, force: true });
 

@@ -106,9 +106,10 @@ the submodule's ambient declarations (`src/web-scrobbler/src/**/*.d.ts`).
    lists it ahead of upstream's background so its toolbar-icon hook is installed before the first update.
 4. The generated `manifest.json` is patched in place: name, version, Kit's SVG icons, and
    `content_scripts.matches` narrowed from upstream's `<all_urls>`.
-5. `scripts/assets.ts` stages the images upstream's build no longer produces: Kit's `app/icons/*.svg`, the
-   one upstream PNG the controller hard-codes (`icon_main_48.png`), and `src/img/main/*` (in-page info box
-   and scrobble notifications).
+5. `scripts/assets.ts` stages the artwork upstream's build no longer produces — Kit's `app/icons/*.svg` —
+   and copies only the upstream images the shipped scripts actually fetch (read out of their bundles),
+   dropping upstream's own UI chunks and the rest of `img/main`. `scripts/action-icons.ts` then renders the
+   toolbar set, and the in-page info box mark, from those SVGs.
 
 **Content-script scope.** Upstream matches `<all_urls>`, so its content script runs on every page.
 `app/shared/connector-matches.ts` narrows that to the apex domain of every host the connectors declare
@@ -137,8 +138,9 @@ carry a note.
 
 Kit's own artwork lives in `app/icons` as SVG, staged into `build/preview/icons` by `assets.ts`. The
 manifest names a single SVG logo for `icons` (Apple's sample extension does the same) and the resting
-toolbar icon for `action.default_icon`; upstream's one hard-coded image, `icons/icon_main_48.png` for
-the in-page info box, is still staged from `src/icons/icon_safari_48.png`.
+toolbar icon for `action.default_icon`. Upstream's controller also hard-codes `icons/icon_main_48.png` for
+the in-page info box, so `action-icons.ts` renders that filename from Kit's logo — no upstream artwork
+reaches the build.
 
 Upstream's `action.ts` drives the toolbar from the controller mode, asking for
 `icons/action_<mode>_<size>_<theme>.png` on every update — files that no longer exist.
