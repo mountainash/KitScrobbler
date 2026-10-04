@@ -141,11 +141,12 @@ toolbar icon for `action.default_icon`; upstream's one hard-coded image, `icons/
 the in-page info box, is still staged from `src/icons/icon_safari_48.png`.
 
 Upstream's `action.ts` drives the toolbar from the controller mode, asking for
-`icons/action_<mode>_<size>_<theme>.png` on every update — files that no longer exist. `app/background/kit.ts`
-(listed first in `background.scripts`) therefore wraps `browser.action.setIcon` and swaps the artwork via
-`app/shared/action-icon.ts`: recording while a track plays, resting otherwise. Reading upstream's decision
-rather than re-deriving it keeps us in step with the controller without touching the submodule, and no
-`icon_main_*.png` set needs to be generated.
+`icons/action_<mode>_<size>_<theme>.png` on every update — files that no longer exist.
+`app/shared/action-icon.ts` maps those modes onto the SVG set in `app/icons`: one file per mode, named for
+the mode upstream asks for, with playing keeping the recording mark. `app/background/kit.ts` (listed first
+in `background.scripts`) wraps `browser.action.setIcon` to draw it. Reading upstream's decision rather than
+re-deriving it keeps us in step with the controller without touching the submodule, and no `icon_main_*.png`
+set needs to be generated.
 
 `build/preview` is a plain, complete web extension folder — point Safari's Developer tab at it with
 **Add Temporary Extension** to run it, exactly like loading an unpacked extension in Firefox/Chromium.

@@ -1,7 +1,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { actionIconPath } from "../app/shared/action-icon";
 import { connectorMatches } from "../app/shared/connector-matches";
-import { KIT_ICONS } from "./assets";
+import { KIT_LOGO } from "./assets";
 import { manifestPath, root } from "./paths";
 
 interface PackageJson {
@@ -28,13 +29,13 @@ interface Manifest {
  * Apple's sample extension names a single SVG for `icons` and lets Safari scale
  * it, so Kit Scrobbler ships one logo instead of a set of PNGs.
  */
-const APP_ICON_PATH = `icons/${KIT_ICONS.logo}`;
+const APP_ICON_PATH = `icons/${KIT_LOGO}`;
 
-/** Toolbar sizes Safari asks for; the background script swaps in the other one. */
+/** Toolbar sizes Safari asks for; the background script swaps in the current mode. */
 const ACTION_ICON_SIZES = [16, 19, 32, 38] as const;
 
-/** The toolbar's resting state, before any tab reports a track. */
-const ACTION_ICON_PATH = `icons/${KIT_ICONS.unsupported}`;
+/** Upstream's own default, until a tab reports which mode it is in. */
+const ACTION_ICON_PATH = actionIconPath("unsupported");
 
 /** Kit's background hook, written by `buildBackgroundScript`. */
 const ACTION_ICON_SCRIPT = "background/kit.js";

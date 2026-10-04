@@ -1,11 +1,25 @@
 /**
- * The two toolbar icons Kit Scrobbler ships, in place of upstream's generated
- * per-mode set (one file per controller mode, size and theme).
+ * Kit Scrobbler's toolbar artwork, one file per controller mode, named for the
+ * mode upstream asks for in `icons/action_<mode>_<size>_<theme>.png`.
+ *
+ * Playing has no file of its own: it keeps the recording mark.
  */
-export const ACTION_ICONS = {
-	recording: "icons/kit-scrobbler-recording.svg",
-	idle: "icons/kit-scrobbler-unsupported.svg",
-} as const;
+export const ACTION_ICONS: Record<string, string> = {
+	base: "action_base.svg",
+	disabled: "action_disabled.svg",
+	disallowed: "action_disallowed.svg",
+	error: "action_error.svg",
+	ignored: "action_ignored.svg",
+	loading: "action_loading.svg",
+	loved: "action_loved.svg",
+	paused: "action_paused.svg",
+	playing: "kit-scrobbler-recording.svg",
+	scrobbled: "action_scrobbled.svg",
+	skipped: "action_skipped.svg",
+	unknown: "action_unknown.svg",
+	unloved: "action_unloved.svg",
+	unsupported: "action_unsupported.svg",
+};
 
 /** As much of a `browser.action.setIcon` call as we touch. */
 export interface ActionIconDetails {
@@ -16,16 +30,17 @@ export interface ActionIconDetails {
 /** Upstream asks for `icons/action_<mode>_<size>_<theme>.png` on every update. */
 const UPSTREAM_ICON = /(?:^|\/)action_([a-z]+)_\d+_/;
 
+/** The staged path for a controller mode, defaulting to the unsupported mark. */
+export function actionIconPath(mode: string | undefined): string {
+	return `icons/${(mode && ACTION_ICONS[mode]) || ACTION_ICONS.unsupported}`;
+}
+
 /**
- * Picks Kit's artwork for one of upstream's action icon paths.
- *
- * Only `Playing` means music is actually running, so every other mode —
- * upstream's `Paused`, `Scrobbled`, `Unsupported` and the rest — shows the
- * resting icon.
+ * Picks Kit's artwork for one of upstream's action icon paths — the mode
+ * upstream already decided on, drawn as one of our own SVGs.
  */
 export function kitActionIconPath(upstreamPath: string): string {
-	const mode = UPSTREAM_ICON.exec(upstreamPath)?.[1];
-	return mode === "playing" ? ACTION_ICONS.recording : ACTION_ICONS.idle;
+	return actionIconPath(UPSTREAM_ICON.exec(upstreamPath)?.[1]);
 }
 
 /**
