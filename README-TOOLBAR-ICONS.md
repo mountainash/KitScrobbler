@@ -35,8 +35,8 @@ icons/action_<state>_<size>_<theme>.png        e.g. icons/action_loved_32_safari
 ```
 
 - sizes: `16`, `19`, `32`, `38`
-- themes: `safari`, `light`, `dark` — Kit's artwork is the same for all three,
-  so each render is written under every theme name
+- theme: `safari`. That is the only variant Safari asks for; Kit Scrobbler is
+  built for Safari alone, so the light/dark sets are not generated.
 
 The artwork is converted with `Bun.WebView`: the page draws the SVG into a canvas
 at the requested size and returns a PNG, which keeps the transparency the marks

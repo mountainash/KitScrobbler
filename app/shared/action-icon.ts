@@ -33,32 +33,25 @@ export interface ActionIconDetails {
 export const ACTION_ICON_SIZES = [16, 19, 32, 38] as const;
 
 /**
- * The themes upstream can ask for in `action_<mode>_<size>_<theme>.png`. Kit's
- * artwork is the same whichever theme is requested, so each render is written
- * under all of these names.
+ * Safari is the only target, so only its variant of the artwork is built.
+ * Upstream chooses the theme with `getIconType()`, which names the light/dark
+ * sets in browsers that have a notifications API; the resolver below always asks
+ * for this one, so the file it hands over exists.
  */
-export const ACTION_ICON_THEMES = ["safari", "light", "dark"] as const;
+const ACTION_ICON_THEME = "safari";
 
 /** The PNG name upstream expects, rendered by `scripts/action-icons.ts`. */
-export function actionIconFile(
-	mode: string,
-	size: number,
-	theme: string,
-): string {
-	return `action_${mode}_${size}_${theme}.png`;
+export function actionIconFile(mode: string, size: number): string {
+	return `action_${mode}_${size}_${ACTION_ICON_THEME}.png`;
 }
 
 /**
- * The staged path for a mode at one size and theme. A mode with no artwork of
- * its own gets the unsupported mark, whose file always exists.
+ * The staged path for a mode at one size. A mode with no artwork of its own gets
+ * the unsupported mark, whose file always exists.
  */
-export function actionIconPath(
-	mode: string | undefined,
-	size: number,
-	theme: string = ACTION_ICON_THEMES[0],
-): string {
+export function actionIconPath(mode: string | undefined, size: number): string {
 	const known = mode && mode in ACTION_ICONS ? mode : "unsupported";
-	return `icons/${actionIconFile(known, size, theme)}`;
+	return `icons/${actionIconFile(known, size)}`;
 }
 
 /** Upstream asks for `icons/action_<mode>_<size>_<theme>.png` on every update. */
@@ -66,11 +59,12 @@ const UPSTREAM_ICON = /(?:^|\/)action_([a-z]+)_(\d+)_([a-z]+)\.png$/;
 
 /**
  * Rewrites one of upstream's action icon paths to Kit's rendered artwork for the
- * same mode, size and theme.
+ * same mode and size. The theme it asked for is discarded — only Safari's set is
+ * built.
  */
 export function kitActionIconPath(upstreamPath: string): string {
-	const [, mode, size, theme] = UPSTREAM_ICON.exec(upstreamPath) ?? [];
-	return actionIconPath(mode, Number(size ?? ACTION_ICON_SIZES[0]), theme);
+	const [, mode, size] = UPSTREAM_ICON.exec(upstreamPath) ?? [];
+	return actionIconPath(mode, Number(size ?? ACTION_ICON_SIZES[0]));
 }
 
 /**

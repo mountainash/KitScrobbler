@@ -1,8 +1,13 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	rmSync,
+	writeFileSync,
+} from "node:fs";
 import { join } from "node:path";
 import {
 	ACTION_ICON_SIZES,
-	ACTION_ICON_THEMES,
 	ACTION_ICONS,
 	actionIconFile,
 } from "../app/shared/action-icon";
@@ -20,6 +25,7 @@ import { appDir, previewDir } from "./paths";
 export async function buildActionIcons(): Promise<void> {
 	const iconsOut = join(previewDir, "icons");
 	mkdirSync(iconsOut, { recursive: true });
+	removeStaleIcons(iconsOut);
 
 	const view = openView();
 	try {
@@ -29,16 +35,23 @@ export async function buildActionIcons(): Promise<void> {
 			const renders = await renderSizes(view, svg);
 
 			for (const size of ACTION_ICON_SIZES) {
-				for (const theme of ACTION_ICON_THEMES) {
-					writeFileSync(
-						join(iconsOut, actionIconFile(mode, size, theme)),
-						renders[size],
-					);
-				}
+				writeFileSync(
+					join(iconsOut, actionIconFile(mode, size)),
+					renders[size],
+				);
 			}
 		}
 	} finally {
 		view.close();
+	}
+}
+
+/** Drops earlier renders, so the set on disk matches {@link ACTION_ICONS}. */
+function removeStaleIcons(iconsOut: string): void {
+	for (const file of readdirSync(iconsOut)) {
+		if (file.startsWith("action_") && file.endsWith(".png")) {
+			rmSync(join(iconsOut, file));
+		}
 	}
 }
 
