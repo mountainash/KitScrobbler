@@ -37,8 +37,7 @@
         "biomejs.biome"
       ],
       "settings": {
-        "bun.runtime": "/usr/local/bin/bun",
-        "astro.typescript.server.enable": true
+        "bun.runtime": "/usr/local/bin/bun"
       }
     }
   },
