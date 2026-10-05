@@ -225,7 +225,7 @@ function disabledView(
 	return stateView(
 		ICONS.disabled,
 		"Scrobbling disabled",
-		"Kit Scrobbler is turned off for this site.",
+		"Kit Scrobbler is turned off for this website",
 		el(
 			"div",
 			{ class: "state__actions" },
@@ -243,7 +243,7 @@ function disabledView(
 							.then(() => render());
 					},
 				},
-				"Enable for this site",
+				"Enable for this website",
 			),
 		),
 	);
@@ -258,8 +258,8 @@ function body(
 		case ControllerMode.Unsupported:
 			return stateView(
 				ICONS.unsupported,
-				"Not supported yet",
-				"Kit Scrobbler does not recognise this website.",
+				"Not supported",
+				"Kit Scrobbler does not recognise this website",
 			);
 		case ControllerMode.Disabled:
 			return disabledView(tab, comm);
