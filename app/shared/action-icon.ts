@@ -33,6 +33,18 @@ export interface ActionIconDetails {
 export const ACTION_ICON_SIZES = [16, 19, 32, 38] as const;
 
 /**
+ * The sizes Apple's packaging guide asks for in the extension's own icon — the
+ * one Safari lists in its Extensions pane. `scripts/action-icons.ts` renders each
+ * from the logo, which is also why the SVG is no longer what the manifest names.
+ */
+export const EXTENSION_ICON_SIZES = [48, 64, 96, 128, 256, 512] as const;
+
+/** The PNG name for the extension icon at that size. */
+export function extensionIconFile(size: number): string {
+	return `kit-scrobbler-${size}.png`;
+}
+
+/**
  * Safari is the only target, so only its variant of the artwork is built.
  * Upstream chooses the theme with `getIconType()`, which names the light/dark
  * sets in browsers that have a notifications API; the resolver below always asks

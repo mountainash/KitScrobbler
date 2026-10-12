@@ -4,6 +4,8 @@ import {
 	ACTION_ICON_SIZES,
 	ACTION_ICONS,
 	actionIconFile,
+	EXTENSION_ICON_SIZES,
+	extensionIconFile,
 } from "../app/shared/action-icon";
 import { KIT_LOGO } from "./assets";
 import { appDir, previewDir } from "./paths";
@@ -33,10 +35,14 @@ export async function buildActionIcons(): Promise<void> {
 		await view.navigate("data:text/html,<html><body></body></html>");
 
 		const logo = readFileSync(join(appDir, "icons", KIT_LOGO), "utf8");
-		const infoBox = await renderSizes(view, logo, [INFO_BOX_ICON.size]);
+		const sizes = [...EXTENSION_ICON_SIZES, INFO_BOX_ICON.size];
+		const rendered = await renderSizes(view, logo, sizes);
+		for (const size of EXTENSION_ICON_SIZES) {
+			writeFileSync(join(iconsOut, extensionIconFile(size)), rendered[size]);
+		}
 		writeFileSync(
 			join(iconsOut, INFO_BOX_ICON.name),
-			infoBox[INFO_BOX_ICON.size],
+			rendered[INFO_BOX_ICON.size],
 		);
 
 		for (const [mode, source] of Object.entries(ACTION_ICONS)) {

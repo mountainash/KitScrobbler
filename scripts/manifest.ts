@@ -1,8 +1,12 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { ACTION_ICON_SIZES, actionIconPath } from "../app/shared/action-icon";
+import {
+	ACTION_ICON_SIZES,
+	actionIconPath,
+	EXTENSION_ICON_SIZES,
+	extensionIconFile,
+} from "../app/shared/action-icon";
 import { connectorMatches } from "../app/shared/connector-matches";
-import { KIT_LOGO } from "./assets";
 import { manifestPath, root } from "./paths";
 
 interface PackageJson {
@@ -24,12 +28,6 @@ interface Manifest {
 	content_scripts?: ContentScript[];
 	[key: string]: unknown;
 }
-
-/**
- * Apple's sample extension names a single SVG for `icons` and lets Safari scale
- * it, so Kit Scrobbler ships one logo instead of a set of PNGs.
- */
-const APP_ICON_PATH = `icons/${KIT_LOGO}`;
 
 /** Kit's background hook, written by `buildBackgroundScript`. */
 const ACTION_ICON_SCRIPT = "background/kit.js";
@@ -62,7 +60,12 @@ export function patchManifest(): void {
 		manifest.version = pkg.version;
 	}
 
-	manifest.icons = { "512": APP_ICON_PATH };
+	manifest.icons = Object.fromEntries(
+		EXTENSION_ICON_SIZES.map((size) => [
+			String(size),
+			`icons/${extensionIconFile(size)}`,
+		]),
+	);
 	if (manifest.action) {
 		// Upstream's own default, until a tab reports which mode it is in.
 		manifest.action.default_icon = Object.fromEntries(
