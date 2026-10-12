@@ -66,6 +66,22 @@ Building is two steps:
 1. **`bun run build`** produces the loadable extension at `build/preview`. This is a plain web extension folder, so you can run it without Xcode: in Safari open **Settings → Advanced**, tick **Show features for web developers**, then in the **Developer** tab click **Add Temporary Extension…** and choose `build/preview`.
 2. **`bun run bundle`** wraps the same bundle in its native host app, archives it with `xcodebuild` and exports it to `dist/` for the App Store. This step needs **macOS + Xcode** and a signing identity.
 
+### 🧰 The Xcode project
+
+`safari/KitScrobbler.xcodeproj` is Kit Scrobbler's own macOS host app plus the Safari web extension, a
+replacement for the one inside the submodule (which targets macOS 10.14 and Xcode 14.3). It targets
+**macOS 27** only, so there is no compatibility code, and the app is a single SwiftUI file.
+
+The extension's resources are copied from `build/preview` as part of the build, so build the web side first:
+
+1. `bun run build` at the repository root
+2. Open `safari/KitScrobbler.xcodeproj`, select the **KitScrobbler** scheme, and Run
+
+Set your team under the target's Signing & Capabilities before distributing. Without it the app builds
+unsigned, and Safari needs **Settings → Developer → Allow unsigned extensions** before it will load.
+
+`bun run bundle` still drives the submodule's project; it moves to this one once archiving is wired up here.
+
 `bun run build` needs upstream's native libraries: `brew install pango` on macOS, or the cairo/pango development packages on Linux.
 
 ### 📦 Dependency Updates

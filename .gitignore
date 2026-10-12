@@ -23,3 +23,7 @@ pnpm-debug.log*
 DerivedData/
 xcuserdata/
 *.xcuserstate
+
+# Xcode per-user state; never shared.
+safari/**/xcuserdata/
+safari/**/project.xcworkspace/xcuserdata/
