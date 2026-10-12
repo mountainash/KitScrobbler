@@ -288,7 +288,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Kit Scrobbler";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = mountainash.KitScrobbler;
 				PRODUCT_NAME = KitScrobbler;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -309,7 +309,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Kit Scrobbler";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = mountainash.KitScrobbler;
 				PRODUCT_NAME = KitScrobbler;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -328,7 +328,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Kit Scrobbler Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Kit Scrobbler";
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = mountainash.KitScrobbler.Extension;
 				PRODUCT_NAME = "Kit Scrobbler Extension";
 				SKIP_INSTALL = YES;
@@ -348,7 +348,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = "Kit Scrobbler Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Kit Scrobbler";
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = mountainash.KitScrobbler.Extension;
 				PRODUCT_NAME = "Kit Scrobbler Extension";
 				SKIP_INSTALL = YES;
