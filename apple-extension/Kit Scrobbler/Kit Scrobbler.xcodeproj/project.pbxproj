@@ -1,0 +1,605 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 110;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		747CEDA0307C71E700C95866 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 747CED9F307C71E700C95866 /* AppDelegate.swift */; };
+		747CEDA4307C71E700C95866 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDA2307C71E700C95866 /* Main.html */; };
+		747CEDA6307C71E700C95866 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDA5307C71E700C95866 /* Icon.png */; };
+		747CEDA8307C71E700C95866 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDA7307C71E700C95866 /* Style.css */; };
+		747CEDAA307C71E700C95866 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDA9307C71E700C95866 /* Script.js */; };
+		747CEDAC307C71E700C95866 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 747CEDAB307C71E700C95866 /* ViewController.swift */; };
+		747CEDAF307C71E700C95866 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDAD307C71E700C95866 /* Main.storyboard */; };
+		747CEDB1307C71E900C95866 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDB0307C71E900C95866 /* Assets.xcassets */; };
+		747CEDB8307C71E900C95866 /* Kit Scrobbler Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 747CEDB7307C71E900C95866 /* Kit Scrobbler Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		747CEDBD307C71E900C95866 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 747CEDBC307C71E900C95866 /* SafariWebExtensionHandler.swift */; };
+		747CEDD1307C71EA00C95866 /* background in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDC9307C71EA00C95866 /* background */; };
+		747CEDD2307C71EA00C95866 /* connectors in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDCA307C71EA00C95866 /* connectors */; };
+		747CEDD3307C71EA00C95866 /* content in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDCB307C71EA00C95866 /* content */; };
+		747CEDD4307C71EA00C95866 /* img in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDCC307C71EA00C95866 /* img */; };
+		747CEDD5307C71EA00C95866 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDCD307C71EA00C95866 /* icons */; };
+		747CEDD6307C71EA00C95866 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDCE307C71EA00C95866 /* manifest.json */; };
+		747CEDD7307C71EA00C95866 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDCF307C71EA00C95866 /* _locales */; };
+		747CEDD8307C71EA00C95866 /* src in Resources */ = {isa = PBXBuildFile; fileRef = 747CEDD0307C71EA00C95866 /* src */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		747CEDB9307C71E900C95866 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 747CED94307C71E700C95866 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 747CEDB6307C71E900C95866;
+			remoteInfo = "Kit Scrobbler Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		747CEDC4307C71E900C95866 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "";
+			dstSubfolder = PlugIns;
+			files = (
+				747CEDB8307C71E900C95866 /* Kit Scrobbler Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		747CED9C307C71E700C95866 /* Kit Scrobbler.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kit Scrobbler.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		747CED9F307C71E700C95866 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		747CEDA3307C71E700C95866 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		747CEDA5307C71E700C95866 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		747CEDA7307C71E700C95866 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		747CEDA9307C71E700C95866 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		747CEDAB307C71E700C95866 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		747CEDAE307C71E700C95866 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		747CEDB0307C71E900C95866 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		747CEDB2307C71E900C95866 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		747CEDB7307C71E900C95866 /* Kit Scrobbler Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Kit Scrobbler Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		747CEDBC307C71E900C95866 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		747CEDBE307C71E900C95866 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		747CEDC9307C71EA00C95866 /* background */ = {isa = PBXFileReference; lastKnownFileType = folder; name = background; path = ../../../build/preview/background; sourceTree = "<group>"; };
+		747CEDCA307C71EA00C95866 /* connectors */ = {isa = PBXFileReference; lastKnownFileType = folder; name = connectors; path = ../../../build/preview/connectors; sourceTree = "<group>"; };
+		747CEDCB307C71EA00C95866 /* content */ = {isa = PBXFileReference; lastKnownFileType = folder; name = content; path = ../../../build/preview/content; sourceTree = "<group>"; };
+		747CEDCC307C71EA00C95866 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../../../build/preview/img; sourceTree = "<group>"; };
+		747CEDCD307C71EA00C95866 /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = ../../../build/preview/icons; sourceTree = "<group>"; };
+		747CEDCE307C71EA00C95866 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../../build/preview/manifest.json; sourceTree = "<group>"; };
+		747CEDCF307C71EA00C95866 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = ../../../build/preview/_locales; sourceTree = "<group>"; };
+		747CEDD0307C71EA00C95866 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = ../../../build/preview/src; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		747CED99307C71E700C95866 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		747CEDB4307C71E900C95866 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		747CED93307C71E700C95866 = {
+			isa = PBXGroup;
+			children = (
+				747CED9E307C71E700C95866 /* Kit Scrobbler */,
+				747CEDBB307C71E900C95866 /* Kit Scrobbler Extension */,
+				747CED9D307C71E700C95866 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		747CED9D307C71E700C95866 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				747CED9C307C71E700C95866 /* Kit Scrobbler.app */,
+				747CEDB7307C71E900C95866 /* Kit Scrobbler Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		747CED9E307C71E700C95866 /* Kit Scrobbler */ = {
+			isa = PBXGroup;
+			children = (
+				747CED9F307C71E700C95866 /* AppDelegate.swift */,
+				747CEDAB307C71E700C95866 /* ViewController.swift */,
+				747CEDAD307C71E700C95866 /* Main.storyboard */,
+				747CEDB0307C71E900C95866 /* Assets.xcassets */,
+				747CEDB2307C71E900C95866 /* Info.plist */,
+				747CEDA1307C71E700C95866 /* Resources */,
+			);
+			path = "Kit Scrobbler";
+			sourceTree = "<group>";
+		};
+		747CEDA1307C71E700C95866 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				747CEDA2307C71E700C95866 /* Main.html */,
+				747CEDA5307C71E700C95866 /* Icon.png */,
+				747CEDA7307C71E700C95866 /* Style.css */,
+				747CEDA9307C71E700C95866 /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		747CEDBB307C71E900C95866 /* Kit Scrobbler Extension */ = {
+			isa = PBXGroup;
+			children = (
+				747CEDC8307C71EA00C95866 /* Resources */,
+				747CEDBC307C71E900C95866 /* SafariWebExtensionHandler.swift */,
+				747CEDBE307C71E900C95866 /* Info.plist */,
+			);
+			path = "Kit Scrobbler Extension";
+			sourceTree = "<group>";
+		};
+		747CEDC8307C71EA00C95866 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				747CEDC9307C71EA00C95866 /* background */,
+				747CEDCA307C71EA00C95866 /* connectors */,
+				747CEDCB307C71EA00C95866 /* content */,
+				747CEDCC307C71EA00C95866 /* img */,
+				747CEDCD307C71EA00C95866 /* icons */,
+				747CEDCE307C71EA00C95866 /* manifest.json */,
+				747CEDCF307C71EA00C95866 /* _locales */,
+				747CEDD0307C71EA00C95866 /* src */,
+			);
+			name = Resources;
+			path = "Kit Scrobbler Extension";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		747CED9B307C71E700C95866 /* Kit Scrobbler */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 747CEDC5307C71E900C95866 /* Build configuration list for PBXNativeTarget "Kit Scrobbler" */;
+			buildPhases = (
+				747CED98307C71E700C95866 /* Sources */,
+				747CED99307C71E700C95866 /* Frameworks */,
+				747CED9A307C71E700C95866 /* Resources */,
+				747CEDC4307C71E900C95866 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				747CEDBA307C71E900C95866 /* PBXTargetDependency */,
+			);
+			name = "Kit Scrobbler";
+			productName = "Kit Scrobbler";
+			productReference = 747CED9C307C71E700C95866 /* Kit Scrobbler.app */;
+			productType = "com.apple.product-type.application";
+		};
+		747CEDB6307C71E900C95866 /* Kit Scrobbler Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 747CEDC1307C71E900C95866 /* Build configuration list for PBXNativeTarget "Kit Scrobbler Extension" */;
+			buildPhases = (
+				747CEDB3307C71E900C95866 /* Sources */,
+				747CEDB4307C71E900C95866 /* Frameworks */,
+				747CEDB5307C71E900C95866 /* Resources */,
+			);
+			buildRules = (
+			);
+			name = "Kit Scrobbler Extension";
+			productName = "Kit Scrobbler Extension";
+			productReference = 747CEDB7307C71E900C95866 /* Kit Scrobbler Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		747CED94307C71E700C95866 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2710;
+				LastUpgradeCheck = 2710;
+				TargetAttributes = {
+					747CED9B307C71E700C95866 = {
+						CreatedOnToolsVersion = 27.1;
+					};
+					747CEDB6307C71E900C95866 = {
+						CreatedOnToolsVersion = 27.1;
+					};
+				};
+			};
+			buildConfigurationList = 747CED97307C71E700C95866 /* Build configuration list for PBXProject "Kit Scrobbler" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 747CED93307C71E700C95866;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 747CED9D307C71E700C95866 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				747CED9B307C71E700C95866 /* Kit Scrobbler */,
+				747CEDB6307C71E900C95866 /* Kit Scrobbler Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		747CED9A307C71E700C95866 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+				747CEDA6307C71E700C95866 /* Icon.png in Resources */,
+				747CEDAF307C71E700C95866 /* Main.storyboard in Resources */,
+				747CEDAA307C71E700C95866 /* Script.js in Resources */,
+				747CEDA4307C71E700C95866 /* Main.html in Resources */,
+				747CEDB1307C71E900C95866 /* Assets.xcassets in Resources */,
+				747CEDA8307C71E700C95866 /* Style.css in Resources */,
+			);
+		};
+		747CEDB5307C71E900C95866 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+				747CEDD4307C71EA00C95866 /* img in Resources */,
+				747CEDD3307C71EA00C95866 /* content in Resources */,
+				747CEDD2307C71EA00C95866 /* connectors in Resources */,
+				747CEDD8307C71EA00C95866 /* src in Resources */,
+				747CEDD5307C71EA00C95866 /* icons in Resources */,
+				747CEDD6307C71EA00C95866 /* manifest.json in Resources */,
+				747CEDD7307C71EA00C95866 /* _locales in Resources */,
+				747CEDD1307C71EA00C95866 /* background in Resources */,
+			);
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		747CED98307C71E700C95866 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+				747CEDAC307C71E700C95866 /* ViewController.swift in Sources */,
+				747CEDA0307C71E700C95866 /* AppDelegate.swift in Sources */,
+			);
+		};
+		747CEDB3307C71E900C95866 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+				747CEDBD307C71E900C95866 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		747CEDBA307C71E900C95866 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 747CEDB6307C71E900C95866 /* Kit Scrobbler Extension */;
+			targetProxy = 747CEDB9307C71E900C95866 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		747CEDA2307C71E700C95866 /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				747CEDA3307C71E700C95866 /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		747CEDAD307C71E700C95866 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				747CEDAE307C71E700C95866 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		747CEDBF307C71E900C95866 /* Debug configuration for PBXProject "Kit Scrobbler" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		747CEDC0307C71E900C95866 /* Release configuration for PBXProject "Kit Scrobbler" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		747CEDC2307C71E900C95866 /* Debug configuration for PBXNativeTarget "Kit Scrobbler Extension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Kit Scrobbler Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Kit Scrobbler Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = mountainash.KitScrobbler.Extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		747CEDC3307C71E900C95866 /* Release configuration for PBXNativeTarget "Kit Scrobbler Extension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Kit Scrobbler Extension/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Kit Scrobbler Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = mountainash.KitScrobbler.Extension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		747CEDC6307C71E900C95866 /* Debug configuration for PBXNativeTarget "Kit Scrobbler" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Kit Scrobbler/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Kit Scrobbler";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_KEY_NSViewGestureRecognizerIsExclusive = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "mountainash.Kit-Scrobbler";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		747CEDC7307C71E900C95866 /* Release configuration for PBXNativeTarget "Kit Scrobbler" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Kit Scrobbler/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Kit Scrobbler";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_KEY_NSViewGestureRecognizerIsExclusive = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "mountainash.Kit-Scrobbler";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		747CED97307C71E700C95866 /* Build configuration list for PBXProject "Kit Scrobbler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				747CEDBF307C71E900C95866 /* Debug configuration for PBXProject "Kit Scrobbler" */,
+				747CEDC0307C71E900C95866 /* Release configuration for PBXProject "Kit Scrobbler" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		747CEDC1307C71E900C95866 /* Build configuration list for PBXNativeTarget "Kit Scrobbler Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				747CEDC2307C71E900C95866 /* Debug configuration for PBXNativeTarget "Kit Scrobbler Extension" */,
+				747CEDC3307C71E900C95866 /* Release configuration for PBXNativeTarget "Kit Scrobbler Extension" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		747CEDC5307C71E900C95866 /* Build configuration list for PBXNativeTarget "Kit Scrobbler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				747CEDC6307C71E900C95866 /* Debug configuration for PBXNativeTarget "Kit Scrobbler" */,
+				747CEDC7307C71E900C95866 /* Release configuration for PBXNativeTarget "Kit Scrobbler" */,
+			);
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 747CED94307C71E700C95866 /* Project object */;
+	validationLevel = 1;
+}
