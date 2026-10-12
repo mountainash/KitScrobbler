@@ -1,11 +1,6 @@
 import { buildPreview } from "./build";
 import { distDir } from "./paths";
-import {
-	assertCanBundle,
-	createArchive,
-	exportForAppStore,
-	stagePreviewForXcode,
-} from "./xcode";
+import { assertCanBundle, createArchive, exportForAppStore } from "./xcode";
 
 /**
  * Produces an App Store build: the preview extension is wrapped in its native
@@ -20,11 +15,11 @@ async function main(): Promise<void> {
 
 	console.log("Kit Scrobbler — App Store bundle\n");
 
-	// No dev gallery in the shipped App Store bundle.
+	// No dev gallery in the shipped App Store bundle. The Xcode project picks the
+	// result up from `build/preview` when it archives.
 	const preview = await buildPreview({ includeDev: false });
 	console.log(`• Preview extension: ${preview}`);
 
-	stagePreviewForXcode();
 	const archive = createArchive();
 	exportForAppStore(archive);
 

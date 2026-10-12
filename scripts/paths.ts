@@ -27,6 +27,20 @@ export const upstreamRawDir = join(upstreamDir, "build", "safariraw");
 /** The generated manifest inside the preview extension. */
 export const manifestPath = join(previewDir, "manifest.json");
 
+/**
+ * Kit Scrobbler's own Xcode project — the macOS host app and the Safari web
+ * extension. It references the built extension inside {@link previewDir}, so
+ * `bun run build` has to run before Xcode does.
+ */
+export const xcodeProjectDir = join(root, "apple-extension", "Kit Scrobbler");
+export const xcodeProjectPath = join(
+	xcodeProjectDir,
+	"Kit Scrobbler.xcodeproj",
+);
+
+/** The shared scheme `bun run bundle` archives. */
+export const xcodeScheme = "Kit Scrobbler";
+
 /** Packaged distributables (gitignored). */
 export const distDir = join(root, "dist");
 

@@ -1,17 +1,13 @@
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import {
 	archivePath,
 	distDir,
 	exportOptionsPath,
-	previewDir,
-	upstreamDir,
-	upstreamRawDir,
+	root,
+	xcodeProjectPath,
+	xcodeScheme,
 } from "./paths";
-
-const WORKSPACE =
-	".xcode/Web Scrobbler/Web Scrobbler.xcodeproj/project.xcworkspace";
-const SCHEME = "Web Scrobbler (macOS)";
 
 function requireMacOS(): void {
 	if (process.platform !== "darwin") {
@@ -36,31 +32,26 @@ export function assertCanBundle(): void {
 }
 
 /**
- * Places the preview extension where upstream's Xcode project expects it.
+ * Archives the host app + extension with `xcodebuild archive`.
  *
- * The pbxproj references `../../../build/safariraw` relative to `.xcode/`, so the
- * bundle has to sit inside the submodule (in its gitignored `build/`).
+ * The Xcode project references the built web extension in `build/preview`, so
+ * `bun run build` has to have produced it first — `bundle` does that before
+ * getting here. There is no staging step to run.
+ *
+ * Set `DEVELOPMENT_TEAM` to override the team the project carries.
  */
-export function stagePreviewForXcode(): void {
-	rmSync(upstreamRawDir, { recursive: true, force: true });
-	cpSync(previewDir, upstreamRawDir, { recursive: true });
-	console.log(`• Staged preview bundle for Xcode (${upstreamRawDir})`);
-}
-
-/** Archives the host app + extension with `xcodebuild archive`. */
 export function createArchive(): string {
 	requireMacOS();
 	requireXcode();
 
 	rmSync(archivePath, { recursive: true, force: true });
 
-	const team = process.env.DEVELOPMENT_TEAM;
 	const args = [
 		"archive",
-		"-workspace",
-		WORKSPACE,
+		"-project",
+		xcodeProjectPath,
 		"-scheme",
-		SCHEME,
+		xcodeScheme,
 		"-configuration",
 		"Release",
 		"-destination",
@@ -68,14 +59,14 @@ export function createArchive(): string {
 		"-archivePath",
 		archivePath,
 		"-allowProvisioningUpdates",
-		"CODE_SIGN_STYLE=Automatic",
 	];
+	const team = process.env.DEVELOPMENT_TEAM;
 	if (team) {
 		args.push(`DEVELOPMENT_TEAM=${team}`);
 	}
 
-	console.log("• Archiving with xcodebuild (Release)…");
-	execFileSync("xcodebuild", args, { cwd: upstreamDir, stdio: "inherit" });
+	console.log(`• Archiving ${xcodeScheme} (Release)…`);
+	execFileSync("xcodebuild", args, { cwd: root, stdio: "inherit" });
 
 	if (!existsSync(archivePath)) {
 		throw new Error("xcodebuild did not produce an archive.");
@@ -120,7 +111,7 @@ export function exportForAppStore(archive: string): string {
 			distDir,
 			"-allowProvisioningUpdates",
 		],
-		{ cwd: upstreamDir, stdio: "inherit" },
+		{ cwd: root, stdio: "inherit" },
 	);
 
 	return distDir;

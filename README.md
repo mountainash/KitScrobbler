@@ -59,27 +59,48 @@ Run this project inside a DevContainer in VS Code. After reopening the folder in
 - Modern CSS only: **CSS Nesting**, `:has()`, `@starting-style`, popovers. There is no preprocessor and no transpilation step for our styles.
 - Native controls first: real `<input type="checkbox" switch>`, `<select>`, `<input type="range">` using `accent-color`.
 
-### 🏗 Building the extension
+### 🧰 Building the Safari extension
 
-Building is two steps:
+**Requirements:** macOS 27 with Xcode 27, and Bun. Nothing else — the toolbar icons are rendered with the
+system WebKit, so no Chrome or ImageMagick is needed.
 
-1. **`bun run build`** produces the loadable extension at `build/preview`. This is a plain web extension folder, so you can run it without Xcode: in Safari open **Settings → Advanced**, tick **Show features for web developers**, then in the **Developer** tab click **Add Temporary Extension…** and choose `build/preview`.
-2. **`bun run bundle`** wraps the same bundle in its native host app, archives it with `xcodebuild` and exports it to `dist/` for the App Store. This step needs **macOS + Xcode** and a signing identity.
+**1. Build the web extension**
 
-### 🧰 The Xcode project
+```bash
+bun install
+bun run build      # → build/preview
+```
 
-`apple-extension/KitScrobbler.xcodeproj` is Kit Scrobbler's own macOS host app plus the Safari web extension, a
-replacement for the one inside the submodule (which targets macOS 10.14 and Xcode 14.3). It targets
-**macOS 27** only, so there is no compatibility code, and the app is a single SwiftUI file.
+**2. Run it in Safari without Xcode**
 
-The extension's resources are copied from `build/preview` as part of the build, so build the web side first:
+Safari → **Settings → Advanced** → tick **Show features for web developers**, then **Settings → Developer**
+→ tick **Allow unsigned extensions**, then **Add Temporary Extension…** and choose the `build/preview`
+folder. Temporary extensions disappear after 24 hours or when Safari quits.
 
-1. `bun run build` at the repository root
-2. Open `apple-extension/KitScrobbler.xcodeproj`, select the **KitScrobbler** scheme, and Run
+**3. Run the app and the extension from Xcode**
 
-Signing is set to automatic with the project's team, so archiving needs no further setup.
+```bash
+open "apple-extension/Kit Scrobbler/Kit Scrobbler.xcodeproj"
+```
 
-`bun run bundle` still drives the submodule's project; it moves to this one once archiving is wired up here.
+Choose the **Kit Scrobbler** scheme and press Run. Xcode builds the extension, embeds it in the app, and
+installs it in Safari; enable it under **Settings → Extensions**.
+
+The project **references the files in `build/preview`** rather than copying them, so re-run step 1 after any
+change to the web code. Xcode does not build it for you, and if `build/preview` is missing the extension
+ships with whatever was there last.
+
+Signing is automatic with team `E3ZB7KXNN9`, so no setup is needed. Both targets target macOS 27, and app
+sandbox plus hardened runtime are on through build settings rather than entitlement files.
+
+**4. Package for the App Store**
+
+```bash
+bun run bundle     # builds without the dev gallery, archives, and exports to dist/
+```
+
+`EXPORT_METHOD` (default `app-store-connect`), `EXPORT_DESTINATION` (`export` writes a `.pkg` into `dist/`;
+`upload` sends it to App Store Connect) and `DEVELOPMENT_TEAM` override the defaults.
 
 `bun run build` needs upstream's native libraries: `brew install pango` on macOS, or the cairo/pango development packages on Linux.
 
