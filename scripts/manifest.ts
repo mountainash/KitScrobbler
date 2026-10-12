@@ -26,11 +26,39 @@ interface Manifest {
 	icons?: Record<string, string>;
 	action?: { default_icon?: Record<string, string> };
 	content_scripts?: ContentScript[];
+	permissions?: string[];
+	background?: { scripts?: string[]; persistent?: boolean };
+	options_ui?: { page?: string; open_in_tab?: boolean };
 	[key: string]: unknown;
 }
 
 /** Kit's background hook, written by `buildBackgroundScript`. */
 const ACTION_ICON_SCRIPT = "background/kit.js";
+
+/**
+ * Manifest keys Safari does not understand, so Apple's packager reports them and
+ * Safari ignores them. Upstream's manifest targets every browser, so they arrive
+ * with it; dropping them leaves only what Safari acts on.
+ *
+ * `notifications` is a permission Safari does not gate on, `persistent` is an
+ * MV2 leftover that MV3 has no meaning for, and `open_in_tab` only chooses
+ * between a tab and a window for the options page.
+ */
+function removeUnsupportedKeys(manifest: Manifest): void {
+	if (manifest.permissions) {
+		manifest.permissions = manifest.permissions.filter(
+			(name) => name !== "notifications",
+		);
+	}
+
+	if (manifest.background) {
+		delete manifest.background.persistent;
+	}
+
+	if (manifest.options_ui) {
+		delete manifest.options_ui.open_in_tab;
+	}
+}
 
 /**
  * Rewrites the *generated* manifest in the preview extension so it presents as
@@ -46,7 +74,9 @@ const ACTION_ICON_SCRIPT = "background/kit.js";
  *   can swap the toolbar icon on every controller update;
  * - `content_scripts.matches` is narrowed from upstream's `<all_urls>` to the
  *   apex domains of the sites the connectors actually need (see
- *   `app/shared/connector-matches.ts`).
+ *   `app/shared/connector-matches.ts`);
+ * - the keys Safari does not support are dropped (see
+ *   {@link removeUnsupportedKeys}), so Apple's packager reports nothing.
  */
 export function patchManifest(): void {
 	const pkg = JSON.parse(
@@ -77,6 +107,8 @@ export function patchManifest(): void {
 	}
 
 	registerActionIconHook(manifest);
+
+	removeUnsupportedKeys(manifest);
 
 	reportMatches(manifest);
 
