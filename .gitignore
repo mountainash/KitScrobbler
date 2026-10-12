@@ -25,5 +25,5 @@ xcuserdata/
 *.xcuserstate
 
 # Xcode per-user state; never shared.
-safari/**/xcuserdata/
-safari/**/project.xcworkspace/xcuserdata/
+apple-extension/**/xcuserdata/
+apple-extension/**/project.xcworkspace/xcuserdata/

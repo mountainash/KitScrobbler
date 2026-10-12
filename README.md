@@ -68,17 +68,16 @@ Building is two steps:
 
 ### 🧰 The Xcode project
 
-`safari/KitScrobbler.xcodeproj` is Kit Scrobbler's own macOS host app plus the Safari web extension, a
+`apple-extension/KitScrobbler.xcodeproj` is Kit Scrobbler's own macOS host app plus the Safari web extension, a
 replacement for the one inside the submodule (which targets macOS 10.14 and Xcode 14.3). It targets
 **macOS 27** only, so there is no compatibility code, and the app is a single SwiftUI file.
 
 The extension's resources are copied from `build/preview` as part of the build, so build the web side first:
 
 1. `bun run build` at the repository root
-2. Open `safari/KitScrobbler.xcodeproj`, select the **KitScrobbler** scheme, and Run
+2. Open `apple-extension/KitScrobbler.xcodeproj`, select the **KitScrobbler** scheme, and Run
 
-Set your team under the target's Signing & Capabilities before distributing. Without it the app builds
-unsigned, and Safari needs **Settings → Developer → Allow unsigned extensions** before it will load.
+Signing is set to automatic with the project's team, so archiving needs no further setup.
 
 `bun run bundle` still drives the submodule's project; it moves to this one once archiving is wired up here.
 

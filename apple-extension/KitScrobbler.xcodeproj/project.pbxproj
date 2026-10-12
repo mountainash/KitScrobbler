@@ -280,6 +280,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = KitScrobbler/KitScrobbler.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = E3ZB7KXNN9;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -300,6 +301,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = KitScrobbler/KitScrobbler.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = E3ZB7KXNN9;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -320,6 +322,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "Kit Scrobbler Extension/KitScrobblerExtension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = E3ZB7KXNN9;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -339,6 +342,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "Kit Scrobbler Extension/KitScrobblerExtension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = E3ZB7KXNN9;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
