@@ -15,7 +15,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # `src/web-scrobbler` is the upstream submodule; the build has nothing
           # to work with without it.
@@ -75,7 +75,7 @@ jobs:
 
     steps:
       # Full history and tags, so the notes can find the previous release.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           fetch-tags: true
